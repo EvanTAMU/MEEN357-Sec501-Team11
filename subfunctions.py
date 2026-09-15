@@ -3,4 +3,3 @@ def get_mass():
     print("Mass")
 
 
-print ("hody")
