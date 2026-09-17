@@ -1,16 +1,29 @@
 #import libraries#
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 import math as mp
 
 
-def tau_dcmotor():
+def tau_dcmotor(omega: np.array,motor) -> float:
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  and  a  dictionary  containing 
     important specifications for the motor"""
+    # 6 motors
+    omega_max = int() # No load speed (MAX)
+    tau_max = int()
 
-    """returns 
-        - the motor shaft torque in Nm given the shaft speed in rad/s 
-        - the motor specifications structures"""
+    if (omega < 0):
+        # The wheel is turning BACKWARDS, a force is pushing it back
+        print("Motor is spinning backwards~")
+        return tau_max
+    if (omega > omega_max):
+        print("Wheel is being spun forward~")
+        return 0 # Return tau = 0 if wheeling is being forced faster than possible
+
+    tau = None
+
+
+
+    return tau
     
 
 def get_gear_ratio():
