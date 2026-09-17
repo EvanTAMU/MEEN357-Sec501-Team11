@@ -34,5 +34,3 @@ def bisec(F_net, xl = 0, xu = 2*math.pi, errTol = 1e-6, iterMax=100, funTol=1e-6
         if (error_est < errTol) or iterNum >= iterMax or (abs(f_bisect) < funTol):
             done = True
         
-
-
