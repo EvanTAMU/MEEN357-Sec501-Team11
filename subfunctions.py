@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math as mp
 
+from sqlalchemy import false
+
 
 def tau_dcmotor():
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  and  a  dictionary  containing 
@@ -11,6 +13,7 @@ def tau_dcmotor():
     """returns 
         - the motor shaft torque in Nm given the shaft speed in rad/s 
         - the motor specifications structures"""
+
     
 
 def get_gear_ratio():
@@ -38,16 +41,22 @@ def get_mass(rover):
     return mass_total
 
 
-def F_drive():
+def F_drive(omega,rover):
     """Returns the force applied to the rover by the drive system given information about the drive 
     system (wheel_assembly) and the motor shaft speed. """
     
+    
 
-def F_gravity():
+def F_gravity(terrain_angle, rover, planet):
     """Returns  the  magnitude  of  the  force  component  acting  on  the  rover  in  the  direction  of  its 
     translational  motion  due  to  gravity  as  a  function  of  terrain  inclination  angle  and  rover 
     properties. """
+    # terrain angle comes from a numpy array. the 
+    # if the angles are given as an array fgt will be an array of the same size, this is the nature of numpy
     
+    fgt = rover['chassis']['mass'] * planet['g'] * np.sin(np.radians(terrain_angle))
+    return fgt
+
 
 def F_rolling():
     """Returns  the  magnitude  of  the  force  acting  on  the  rover  in  the  direction  of  its  translational 
@@ -59,4 +68,4 @@ def F_net():
     """Returns  the  magnitude  of  net  force  acting  on  the  rover  in  the  direction  of  its  translational 
     motion."""
     
-
+print ("howdy")
