@@ -13,15 +13,11 @@ import numpy as np
 
 from subfunctions import tau_dcmotor
 
+motor = {"speed_noload":3.8,"torque_noload":0,"torque_stall":170}
 
-
-x = np.linspace(0,10, 400)
-y = np.linspace(0,30, 400)
-z = np.linspace(0,20, 400)
-
-motor_speed = None
-motor_power = None
-motor_torque = None
+motor_speed = np.linspace(0,10)
+motor_power = np.linspace(0,10)
+motor_torque = tau_dcmotor(np.linspace(-1,4.8),motor)
 
 
 def graph_motor (motor_speed, motor_power, motor_torque):
@@ -51,4 +47,4 @@ def graph_motor (motor_speed, motor_power, motor_torque):
     plt.subplots_adjust()
     plt.show()
 
-graph_motor(x,y,z)
+graph_motor(motor_speed,motor_power,motor_torque)
