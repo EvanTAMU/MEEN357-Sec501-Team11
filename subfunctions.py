@@ -168,6 +168,10 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     """Returns  the  magnitude  of  the  force  acting  on  the  rover  in  the  direction  of  its  translational 
     motion  due  to  rolling  resistances  given  the  terrain  inclination  angle,  rover  properties,  and  a 
     rolling resistance coefficient. """
+
+    m = get_mass(rover)
+
+    #check parameters
     while not done:
         if np.isscalar(omega) is False:
             raise Exception('motor shaft speed is not a scalar')
@@ -185,14 +189,20 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
             raise Exception('Crr is not a positive scalar')
         else:
             done = True
+    
+    #execute calculations for rolling resistance
+    Frr = Crr * m * planet['g'] * mp.cos(np.radians(terrain_angle))
+    
+    return Frr
+
 
 def F_net(omega, terrain_angle, rover, planet, Crr):
     """Returns  the  magnitude  of  net  force  acting  on  the  rover  in  the  direction  of  its  translational 
     motion."""
     #call functions
-    F_drive = F_drive(omega, rover)
-    F_gravity = F_gravity(terrain_angle, rover, planet)
-    F_rolling(omega, terrain_angle, rover, planet, Crr)
+    drive = F_drive(omega, rover)
+    gravity = F_gravity(terrain_angle, rover, planet)
+    rolling = F_rolling(omega, terrain_angle, rover, planet, Crr)
 
     #check parameters
     done = False
@@ -214,21 +224,8 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
         else:
             done = True
     #execute calculations for net force
-    if terrain_angle == 0:
-        fx = F_drive - F_rolling
-        fy = F_gravity
-        F_net = mp.sqrt((fx**2) + (fy**2))
-    elif -75 < terrain_angle < 0:
-        fx = F_drive - F_rolling + (F_gravity * mp.sin(mp.radians(terrain_angle)))
-        fy = F_gravity * mp.cos(mp.radians(terrain_angle))
-        F_net = mp.sqrt((fx**2) + (fy**2))
-    elif 0 < terrain_angle < 75:
-        fx = F_drive - F_rolling - F_gravity * mp.sin(mp.radians(terrain_angle))
-        fy = F_gravity * mp.cos(mp.radians(terrain_angle))
-        F_net = mp.sqrt((fx**2) + (fy**2))
-    else:
-        print('error')
+    Fnet = drive + gravity + rolling
 
-
+    return Fnet
 
     
