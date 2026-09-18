@@ -135,12 +135,12 @@ def F_rolling():
     motion  due  to  rolling  resistances  given  the  terrain  inclination  angle,  rover  properties,  and  a 
     rolling resistance coefficient. """
 
-    #INPUT CHECKS
+
 
 def F_net():
     """Returns  the  magnitude  of  net  force  acting  on  the  rover  in  the  direction  of  its  translational 
     motion."""
 
-    #INPUT CHECKS
+   
     
 
