@@ -8,24 +8,34 @@
 # All graphs need axes labeled clearly with units
 # Use matplotlib.pyplot.xlabel and matbplotlib.pyplot.ylabel commands
 
+# Modules
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Import from files
 from subfunctions import tau_dcmotor
 
-motor = {"speed_noload":3.8,"torque_noload":0,"torque_stall":170}
+# Dictionary for testing
+motor = {"speed_noload":3.8,"torque_noload":0,"torque_stall":170, "mass":5.0}
 
-motor_speed = np.linspace(0,10)
-motor_power = np.linspace(0,10)
-motor_torque = tau_dcmotor(np.linspace(-1,4.8),motor)
+# Lambda func do find mechanical power of motor
+powerCalc = lambda motor_speed, motor_torque : motor_speed*motor_torque
+
+# linspace needs to go from 0 to omega_max (3.8)
+# All values are based on motor_speed linspace, so no size errors
+motor_speed = np.linspace(0,motor["speed_noload"],num=250)
+motor_torque = tau_dcmotor(motor_speed, motor)
 
 
-def graph_motor (motor_speed, motor_power, motor_torque):
+def graph_motor (motor_speed, motor_torque):
+    # Get motor Mechanical Power
+    motor_power = powerCalc(motor_speed, motor_torque)
+
     # Assign a style
     plt.style.use('bmh')
 
     # Create the figures
-    fig, axs = plt.subplots(3,1,sharey=True)
+    fig, axs = plt.subplots(3,1, figsize=(7,9))
 
     # Plot the values
     axs[0].plot(motor_torque,motor_speed,'r')
@@ -47,4 +57,6 @@ def graph_motor (motor_speed, motor_power, motor_torque):
     plt.subplots_adjust()
     plt.show()
 
-graph_motor(motor_speed,motor_power,motor_torque)
+# If module is imported, dosent run the function for no reason
+if __name__ == "main":
+    graph_motor(motor_speed,motor_torque)
