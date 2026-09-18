@@ -52,7 +52,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
         if (omega > speed_noload):
             # Return tau = 0 if wheel is being forced faster than possible
             tau = 0
-        tau = (torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega))
+        else: tau = (torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega))
 
         return float(tau) # Return a scalar, if input is not nparray
 
