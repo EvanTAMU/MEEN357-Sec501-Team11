@@ -118,16 +118,22 @@ def F_drive(omega,rover):
         raise Exception('rover is not a valid input type; dict')
 
 
-    #Calculate the Force that one wheel exerts on the ground 
     #Call tau-dcmotor to get the torque at the motor shaft
     tau_motor = tau_dcmotor(omega,rover['wheel_assembly']['motor']) # n*m
 
-    # Fd = 
-    
-    
-    
+    #call gear ratio to get speed reduction ratio (Ng)
+    Ng = gear_ratio = get_gear_ratio(rover['wheel_assembly']['speed_reducer']) 
 
-    
+    #radius of the wheel 
+    radius = rover['wheel_assembly']['wheel']['radius'] 
+
+    #Force exerted by one wheel on the ground
+    Fd_one = (tau_motor*Ng)/radius
+
+    #Total force exerted by all 6 wheels on the ground
+    Fd = 6*Fd_one
+    return Fd
+
 
 def F_gravity(terrain_angle, rover, planet):
     """Returns  the  magnitude  of  the  force  component  acting  on  the  rover  in  the  direction  of  its 
