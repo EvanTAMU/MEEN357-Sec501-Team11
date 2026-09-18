@@ -14,11 +14,11 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
     # INPUT CHECKS
     # omega
     if not isinstance(omega,(np.ndarray,int,float)):
-        print(type(omega))
-        raise Exception('Omega is not a valid input type => np.ndarray | float | int')
+        print(type(omega))  #IS THIS NEEDED TO PRINT THE TYPE?
+        raise Exception('Omega is not a valid input type;  np.ndarray | float | int')
     # motor
     if not isinstance(motor,dict):
-        raise Exception('motor is not a valid input type => dict')
+        raise Exception('motor is not a valid input type;  dict')
 
     speed_noload = motor["speed_noload"] # rad/s | No load speed (MAX)
     torque_stall = motor["torque_stall"] # Nm | Motor Stall torque (MAX)
@@ -62,11 +62,18 @@ def get_gear_ratio():
 def get_mass(rover):
     """Computes the total mass of the rover. Uses information in the rover dict."""
 
+
+    #INPUT CHECKS 
+        #check that rover is a dictionary 
+    if not isinstance(rover,dict):
+            raise Exception('rover is not a valid input type;  dict')
+    
+
     #rover dictionary for all masses of the rover components
     #this would find "chassis" in the rover dictionary and then look at its "mass"
     chassis_mass = rover['chassis']['mass'] 
-    power_subsystem_mass = rover['power_subsystem']['mass']
-    payload_mass = rover['payload']['mass']
+    power_subsystem_mass = rover['power_subsys']['mass']
+    payload_mass = rover['science_payload ']['mass']
 
     #subdictionary for the wheel assembly that contians the motor, speed reducer, and the wheels.
     motor_mass = rover['wheel_assembly']['motor']['mass']
@@ -83,7 +90,8 @@ def get_mass(rover):
 def F_drive(omega,rover):
     """Returns the force applied to the rover by the drive system given information about the drive 
     system (wheel_assembly) and the motor shaft speed. """
-    
+
+    #INPUT CHECKS
     
 
 def F_gravity(terrain_angle, rover, planet):
@@ -93,7 +101,32 @@ def F_gravity(terrain_angle, rover, planet):
     # terrain angle comes from a numpy array. the 
     # if the angles are given as an array fgt will be an array of the same size, this is the nature of numpy
     
-    fgt = rover['chassis']['mass'] * planet['g'] * np.sin(np.radians(terrain_angle))
+    #INPUT CHECKS
+
+    #check terrain angle is a scalar of vector
+    if not isinstance(terrain_angle,(np.ndarray,int,float)):
+            raise Exception('Terrain angle is not a valid input type; np.ndarray | float | int')
+
+    # Validating input angle is within range [-75,75] degrees
+    # use np.asanarray to convert terrain_angle into array if not already
+    angle_array = np.asanyarray(terrain_angle)
+    if not np.all((angle_array >= -75) & (angle_array <= 75)):
+            raise Exception('Terrain angle is not a valid input value.')
+
+    # check rover is dict
+    if not isinstance(rover,dict):
+            raise Exception('Rover is not a valid input type;  dict')
+
+    # check planet is dict
+    if not isinstance(planet,dict):
+            raise Exception('Planet is not a valid input type;  dict')
+
+    # call get_mass to get the total mass of the rover
+    total_mass = get_mass(rover)
+
+    #multiply by -1 to account for sign convention. + angle = - F
+    fgt = -total_mass * planet['g'] * np.sin(np.radians(terrain_angle))
+
     return fgt
 
 
