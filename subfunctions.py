@@ -1,4 +1,5 @@
 #import libraries
+from matplotlib.pylab import size
 import numpy as np
 import matplotlib.pyplot as plt
 import math as mp
@@ -15,7 +16,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
     # omega
     if not isinstance(omega,(np.ndarray,int,float)):
         print(type(omega))  #IS THIS NEEDED TO PRINT THE TYPE?
-        raise Exception('Omega is not a valid input type;  np.ndarray | float | int')
+        raise Exception('Omega is not a valid input type;  np.ndarray, float, int')
     # motor
     if not isinstance(motor,dict):
         raise Exception('motor is not a valid input type;  dict')
@@ -55,16 +56,33 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
 
         return float(tau) # Return a scalar, if input is not nparray
 
-def get_gear_ratio():
+def get_gear_ratio(speed_reducer):
     """Returns the speed reduction ratio for the speed reducer based on speed_reducer dict."""
-    
+
+    #CHECK INPUTS
+    #check that speed_reducer is a dictionary
+    if not isinstance(speed_reducer,dict):
+        raise Exception('speed_reducer is not valid, ensure; dict')
+
+    #String comparison function
+    lower_case_speed_reducer_type = speed_reducer['type'].lower() #turns type into lower case
+    if not lower_case_speed_reducer_type == 'reverted': 
+        raise Exception('speed_reducer type is invalid, ensure; reverted')
+
+    #CALCULATION
+    d2 = speed_reducer['diam_gear'] 
+    d1 = speed_reducer['diam_pinion'] 
+    Ng = (d2/d1)**2 #speed reduction ratio for the speed reducer
+
+    # ensure returned value is a float
+    return float(Ng)
 
 def get_mass(rover):
     """Computes the total mass of the rover. Uses information in the rover dict."""
 
 
     #INPUT CHECKS 
-        #check that rover is a dictionary 
+    #check that rover is a dictionary 
     if not isinstance(rover,dict):
             raise Exception('rover is not a valid input type;  dict')
     
@@ -77,11 +95,11 @@ def get_mass(rover):
 
     #subdictionary for the wheel assembly that contians the motor, speed reducer, and the wheels.
     motor_mass = rover['wheel_assembly']['motor']['mass']
-    speed_reducer = rover['wheel_assembly']['speed_reducer']['mass']
+    speed_reducer_mass = rover['wheel_assembly']['speed_reducer']['mass']
     wheel_mass = rover['wheel_assembly']['wheel']['mass']
 
     #multiple the wheel assembly mass by 6 because there are 6 wheels on the rover
-    wheel_assembly_mass = 6*(motor_mass + speed_reducer + wheel_mass)
+    wheel_assembly_mass = 6*(motor_mass + speed_reducer_mass + wheel_mass)
 
     mass_total = chassis_mass + power_subsystem_mass + payload_mass + wheel_assembly_mass
     return mass_total
@@ -92,6 +110,23 @@ def F_drive(omega,rover):
     system (wheel_assembly) and the motor shaft speed. """
 
     #INPUT CHECKS
+    #check that omega is a scalar or vector
+    if not isinstance(omega,(np.ndarray,int,float)):
+        raise Exception('Omega is not a valid input type;  np.ndarray, float, int')
+    #check that rover is a dictionary
+    if not isinstance(rover,dict): 
+        raise Exception('rover is not a valid input type; dict')
+
+
+    #Calculate the Force that one wheel exerts on the ground 
+    #Call tau-dcmotor to get the torque at the motor shaft
+    tau_motor = tau_dcmotor(omega,rover['wheel_assembly']['motor']) # n*m
+
+    # Fd = 
+    
+    
+    
+
     
 
 def F_gravity(terrain_angle, rover, planet):
@@ -102,13 +137,12 @@ def F_gravity(terrain_angle, rover, planet):
     # if the angles are given as an array fgt will be an array of the same size, this is the nature of numpy
     
     #INPUT CHECKS
-
     #check terrain angle is a scalar of vector
     if not isinstance(terrain_angle,(np.ndarray,int,float)):
             raise Exception('Terrain angle is not a valid input type; np.ndarray | float | int')
 
     # Validating input angle is within range [-75,75] degrees
-    # use np.asanarray to convert terrain_angle into array if not already
+    # use np.asanarray to convert terrain_angle into array if not already. allows for scalar or vector pass through
     angle_array = np.asanyarray(terrain_angle)
     if not np.all((angle_array >= -75) & (angle_array <= 75)):
             raise Exception('Terrain angle is not a valid input value.')
