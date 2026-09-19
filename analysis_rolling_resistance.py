@@ -49,9 +49,6 @@ planet = {
     'g':3.72 # acceleration due to gravity on Mars
     }
 
-speed_reducer = {
-    'reverted'
-}
 
 # establish arrays 
 Crr_array = np.linspace(0.01,0.5,25)  # 25 numbers of rolling resistance coefficients between 0.01 and 0.5
@@ -82,12 +79,11 @@ for Crr in Crr_array:
     except: 
         # append a null value if no root present
         v_max.append(np.nan) 
-        print ('howdy')
 
 
 # create plot showing v_max versus Crr_array
 plt.plot (Crr_array, v_max)
-plt.title('Rover max velocity vs Crr')
+plt.title('Rover Max Velocity vs Crr')
 plt.xlabel('Coefficient of rolling resistance')
 plt.ylabel('velocity (m/s)')
 plt.grid(True)

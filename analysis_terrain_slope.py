@@ -42,9 +42,6 @@ planet = {
     'g':3.72 # acceleration due to gravity on Mars
     }
 
-speed_reducer = {
-    'reverted'
-}
 
 
 #set parameters
@@ -77,17 +74,18 @@ for slope_deg in slope_array_deg :
    
     except : 
         # append a null value if no root present
-        v_max.append(np.nan) 
+        v_max.append(np.nan)
 
 
 #plot vmax vs slope
-plt.plot(v_max,slope_array_deg)
-plt.xlabel('Incline Angle: degrees')
-plt.ylabel('Maximum Velocity: m/s')
+plt.figure()
+plt.plot(slope_array_deg, v_max)
+plt.xlim(-15, 35)  # Forces x-axis frame to display full requested range [-15, 35]
+plt.title('Rover Max Velocity vs. Terrain Slope')
+plt.xlabel('Terrain Slope [deg]')
+plt.ylabel('Maximum Velocity [m/s]')
 plt.grid(True)
 plt.show()
-
-
         
-
+# Something wrnog is happening with negative values 
 

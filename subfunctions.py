@@ -165,7 +165,7 @@ def F_gravity(terrain_angle, rover, planet):
     total_mass = get_mass(rover)
 
     #multiply by -1 to account for sign convention. + angle = - F
-    fgt = -total_mass * planet['g'] * np.sin(np.radians(terrain_angle))
+    fgt = -1 * total_mass * planet['g'] * np.sin(np.radians(terrain_angle))
 
     return fgt
 
@@ -226,7 +226,7 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
     if not size(omega) == size(terrain_angle):
         raise Exception('motor shaft speed and terrain angle are not the same size')
     
-    if not (-75 < terrain_angle < 75) :
+    if not (-75 <= terrain_angle <= 75) :
         raise Exception('terrain angle is out of range')
     
     if not isinstance(rover, dict) :
