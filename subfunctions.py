@@ -2,7 +2,7 @@
 from matplotlib.pylab import size
 import numpy as np
 import matplotlib.pyplot as plt
-import math as mp
+
 
 #from sqlalchemy import false
 
@@ -34,7 +34,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
                 # The wheel is turning BACKWARDS, a force is pushing it back
                 #print("Motor is spinning backwards~")
                 tau.append(torque_stall)
-            if (omega[w] > speed_noload):
+            if (omega[w] >= speed_noload):
                 #print("Wheel is being spun forward~")
                 tau.append(0) # Return tau = 0 if wheel is being forced faster than possible
 
@@ -187,7 +187,7 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     if not size(omega) == size(terrain_angle):
         raise Exception('motor shaft speed and terrain angle are not the same size')
     
-    if not (-75 < terrain_angle < 75) :
+    if not (-75 <= terrain_angle <= 75) :
         raise Exception('terrain angle is out of range')
     
     if not isinstance(rover, dict) :
@@ -200,9 +200,10 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
         raise Exception('Crr is not a positive scalar')
    
     
-    #execute calculations for rolling resistance
-    Frr = Crr * m * planet['g'] * mp.cos(np.radians(terrain_angle))
-    
+    # execute calculations for rolling resistance
+    # Frr must always oppose motion so it must be negative
+    Frr = -1 * abs(Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))) 
+
     return Frr
 
 
