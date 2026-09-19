@@ -4,6 +4,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def bisection(fun,space,errTol=1e-6,iterMax=100,funTol=1e-6):
+    '''Bisection method'''
+    # assign x_low and x_upper    
+    xl = space[0]
+    xu = space[-1]
+    iterNum = 0
+    done = False
+
+    while not done and iterNum < iterMax:
+        iterNum += 1
+        # Disect the interval
+        xr = (xl+xu)/2 #New x value
+        fl = fun(xl)
+        fr = fun(xr) # New point value
+
+        err_est = (((xr-xl)/xr)*100)
+
+        if (err_est <= errTol):
+            # Error Tolerance achieved
+            break
+        if (fr < funTol):
+            # Function Tolerance achieved
+            break
+
+        if (fr*fl) < 0:
+            xu = xr
+        else: xl = xr
+    return
 
 def vmax_calculations(CRR,SLOPE):
     # Rolling resistance coefficients
@@ -26,7 +54,7 @@ def vmax_calculations(CRR,SLOPE):
             Crr_sample = float(CRR[i,j])
             slope_sample = float(SLOPE[i,j])
             VMAX[i,j] = None# Put code to find max speed at Crr_sample and slope_sample
-
+            
     # Now repreesnt the data
 
 
