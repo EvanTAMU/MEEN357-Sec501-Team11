@@ -49,7 +49,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
         if (omega < 0):
             # The wheel is turning BACKWARDS, a force is pushing it back
             tau = torque_stall
-        if (omega > speed_noload):
+        if (omega >= speed_noload):
             # Return tau = 0 if wheel is being forced faster than possible
             tau = 0
         else: tau = (torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega))
@@ -91,7 +91,7 @@ def get_mass(rover):
     #this would find "chassis" in the rover dictionary and then look at its "mass"
     chassis_mass = rover['chassis']['mass'] 
     power_subsystem_mass = rover['power_subsys']['mass']
-    payload_mass = rover['science_payload ']['mass']
+    payload_mass = rover['science_payload']['mass']
 
     #subdictionary for the wheel assembly that contians the motor, speed reducer, and the wheels.
     motor_mass = rover['wheel_assembly']['motor']['mass']
@@ -178,23 +178,27 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     m = get_mass(rover)
 
     #check parameters
-    while not done:
-        if np.isscalar(omega) is False:
-            raise Exception('motor shaft speed is not a scalar')
-        if np.isscalar(terrain_angle) is False:
-            raise Exception('terrain angle is not a scalar')
-        if size(omega) != size(terrain_angle):
-            raise Exception('motor shaft speed and terrain angle are not the same size')
-        if (-75 < terrain_angle < 75) is False:
-            raise Exception('terrain angle is out of range')
-        if isinstance(rover, dict) is False:
-            raise Exception('rover is not dict')
-        if isinstance(planet, dict) is False:
-            raise Exception('planet is not dict')
-        if (np.isscalar(Crr) and Crr > 0) is False:
-            raise Exception('Crr is not a positive scalar')
-        else:
-            done = True
+    if not np.isscalar(omega) :
+        raise Exception('motor shaft speed is not a scalar')
+    
+    if not np.isscalar(terrain_angle) :
+        raise Exception('terrain angle is not a scalar')
+    
+    if not size(omega) == size(terrain_angle):
+        raise Exception('motor shaft speed and terrain angle are not the same size')
+    
+    if not (-75 < terrain_angle < 75) :
+        raise Exception('terrain angle is out of range')
+    
+    if not isinstance(rover, dict) :
+        raise Exception('rover is not dict')
+    
+    if not isinstance(planet, dict) :
+        raise Exception('planet is not dict')
+    
+    if not (np.isscalar(Crr) and Crr > 0):
+        raise Exception('Crr is not a positive scalar')
+   
     
     #execute calculations for rolling resistance
     Frr = Crr * m * planet['g'] * mp.cos(np.radians(terrain_angle))
@@ -205,30 +209,34 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
 def F_net(omega, terrain_angle, rover, planet, Crr):
     """Returns  the  magnitude  of  net  force  acting  on  the  rover  in  the  direction  of  its  translational 
     motion."""
+
     #call functions
     drive = F_drive(omega, rover)
     gravity = F_gravity(terrain_angle, rover, planet)
     rolling = F_rolling(omega, terrain_angle, rover, planet, Crr)
 
     #check parameters
-    done = False
-    while not done:
-        if np.isscalar(omega) is False:
-            raise Exception('motor shaft speed is not a scalar')
-        if np.isscalar(terrain_angle) is False:
-            raise Exception('terrain angle is not a scalar')
-        if size(omega) != size(terrain_angle):
-            raise Exception('motor shaft speed and terrain angle are not the same size')
-        if (-75 < terrain_angle < 75) is False:
-            raise Exception('terrain angle is out of range')
-        if isinstance(rover, dict) is False:
-            raise Exception('rover is not dict')
-        if isinstance(planet, dict) is False:
-            raise Exception('planet is not dict')
-        if (np.isscalar(Crr) and Crr > 0) is False:
-            raise Exception('Crr is not a positive scalar')
-        else:
-            done = True
+    if not np.isscalar(omega) :
+        raise Exception('motor shaft speed is not a scalar')
+    
+    if not np.isscalar(terrain_angle) :
+        raise Exception('terrain angle is not a scalar')
+    
+    if not size(omega) == size(terrain_angle):
+        raise Exception('motor shaft speed and terrain angle are not the same size')
+    
+    if not (-75 < terrain_angle < 75) :
+        raise Exception('terrain angle is out of range')
+    
+    if not isinstance(rover, dict) :
+        raise Exception('rover is not dict')
+    
+    if not isinstance(planet, dict) :
+        raise Exception('planet is not dict')
+    
+    if not (np.isscalar(Crr) and Crr > 0) :
+        raise Exception('Crr is not a positive scalar')
+        
     #execute calculations for net force
     Fnet = drive + gravity + rolling
 

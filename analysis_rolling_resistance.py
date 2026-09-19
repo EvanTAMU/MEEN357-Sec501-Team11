@@ -58,8 +58,8 @@ Crr_array = np.linspace(0.01,0.5,25)  # 25 numbers of rolling resistance coeffic
 v_max = []
 
 #define parameters
-left = rover['wheel_assembly']['motor']['torque_noload']  #fix this   I think the parameters are wrong
-right = rover['wheel_assembly']['motor']['torque_stall']  #fix this 
+left = 0  #fix this   I think the parameters are wrong
+right = rover['wheel_assembly']['motor']['speed_noload']  #fix this 
 radius = rover['wheel_assembly']['wheel']['radius']
 Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
 
@@ -69,11 +69,13 @@ for Crr in Crr_array:
     # function of the force with omega as the only changing variable
     force = lambda omega : F_net(omega, 0, rover, planet, Crr)
 
-    # try: 
+    # this is a check to see if the right values are being returned for f(a) and f(b). Rn they are not 
+    # print(f"Crr: {Crr:.2f} | f(0) = {force(0.0):.2f} | f(3.8) = {force(3.80):.2f}")
+    #try: 
     #find the root using bisect 
     omega_root = bisect(force, left, right)
 
-    #convert the root from angular to translational
+        #convert the root from angular to translational
     v_max_value = radius*(omega_root/Ng)
 
     v_max.append(v_max_value)
@@ -93,9 +95,7 @@ plt.grid(True)
 plt.show()
 
 
-# DEBUG 
 
-#   KeyError: 'science_payload '   # go back into get_gear_ratio
 
 
     
