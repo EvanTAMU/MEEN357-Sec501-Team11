@@ -1,14 +1,20 @@
 import math
 import numpy as np
+import matplotlib.pyplot as plt
+
+#import necessary subfunctions 
+from subfunctions import get_gear_ratio 
+
 
 #set parameters
-slope_array_degs = numpy.linspace(-15,35,25)
+slope_array_degs = np.linspace(-15,35,25)
 Crr = .015
 
 #store vmax values
 vmax_values = []
 
 for slope_array_deg in slope_array_degs:
+
     #find omega when net force equals 0
     f = lambda omega: F_net(omega, terrain_angle, rover, planet, Crr)
 
@@ -25,7 +31,6 @@ for slope_array_deg in slope_array_degs:
 
 
 #plot vmax vs slope
-import matplotlib.pyplot as plt
 plt.plot(vmax_values,slope_array_degs)
 plt.xlabel('Incline Angle: degrees')
 plt.ylabel('Maximum Velocity: m/s')
