@@ -134,18 +134,18 @@ def vmax_calculations(CRR,SLOPE):
     # Now repreesnt the data
     colormap = 'plasma'
     # 3D surface method
-    figure = plt.figure()
-    ax = figure.add_subplot(111, projection='3d')
-    ax.plot_surface(CRR, SLOPE, VMAX, cmap=colormap)
-    # viewing angle
-    ax.view_init(elev=30, azim=135)
-    # formatting
-    ax.set_title('Maximum Rover Speed vs. Rolling Resistance and Terrain Slope')
-    ax.set_xlabel('Coefficient of Rolling Resistance')
-    ax.set_ylabel('Terrain Slope (degrees)')
-    ax.set_zlabel('Maximum Velocity (m/s)')
-    # show
-    plt.show()
+    # figure = plt.figure()
+    # ax = figure.add_subplot(111, projection='3d')
+    # ax.plot_surface(CRR, SLOPE, VMAX, cmap=colormap)
+    # # viewing angle
+    # ax.view_init(elev=30, azim=135)
+    # # formatting
+    # ax.set_title('Maximum Rover Speed vs. Rolling Resistance and Terrain Slope')
+    # ax.set_xlabel('Coefficient of Rolling Resistance')
+    # ax.set_ylabel('Terrain Slope (degrees)')
+    # ax.set_zlabel('Maximum Velocity (m/s)')
+    # # show
+    # plt.show()
 
     # contour 2D method
     contour = plt.contourf(CRR, SLOPE, VMAX, 100, cmap=colormap)
