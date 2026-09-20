@@ -58,5 +58,5 @@ def graph_motor (motor_speed, motor_torque):
     plt.show()
 
 # If module is imported, dosent run the function for no reason
-if __name__ == "main":
+if __name__ == "__main__":
     graph_motor(motor_speed,motor_torque)
