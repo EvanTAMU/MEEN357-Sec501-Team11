@@ -215,16 +215,14 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
     drive = F_drive(omega, rover)
     gravity = F_gravity(terrain_angle, rover, planet)
     rolling = F_rolling(omega, terrain_angle, rover, planet, Crr)
-
+    omega_scalar = np.isscalar(omega)
+    terrain_angle_scalar = np.isscalar(terrain_angle)
     #check parameters
-    if not np.isscalar(omega) :
-        raise Exception('motor shaft speed is not a scalar')
+    if omega_scalar != terrain_angle_scalar:
+        raise Exception('motor shaft speed and terrain angle must be scalars or arrays of the same size')
     
-    if not np.isscalar(terrain_angle) :
-        raise Exception('terrain angle is not a scalar')
-    
-    if not size(omega) == size(terrain_angle):
-        raise Exception('motor shaft speed and terrain angle are not the same size')
+    if not omega_scalar and size(omega) != size(terrain_angle):
+        raise Exception('motor shaft speed and terrain angle are not the same size array')
     
     if not (-75 <= terrain_angle <= 75) :
         raise Exception('terrain angle is out of range')
