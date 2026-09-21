@@ -188,7 +188,7 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     
     # Check angles in terrain_angles, .any checks every array value
     terrain_array = np.asarray(terrain_angle)
-    if np.any(terrain_array < - 75 or terrain_array > - 75):
+    if np.any(terrain_array < - 75) or np.any(terrain_array > - 75):
         raise Exception('terrain angle is out of range; -75 to 75 degrees')
     
     # execute calculations for rolling resistance
