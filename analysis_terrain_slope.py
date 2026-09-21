@@ -48,7 +48,7 @@ planet = {
 slope_array_deg = np.linspace(-15,35,25)
 Crr = .015
 
-#define more parameters for bisect 
+#define more parameters for bisect
 left = 0  
 right = rover['wheel_assembly']['motor']['speed_noload']  
 radius = rover['wheel_assembly']['wheel']['radius']
