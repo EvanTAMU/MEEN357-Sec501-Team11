@@ -1,6 +1,7 @@
 #import libraries
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
@@ -167,6 +168,8 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     if not (isinstance(Crr,(np.number,float,int)) and Crr > 0):
         raise Exception('crr is not a valid input type; positive float, positive int')
 
+
+    # Get values from dicts
     m = get_mass(rover)   
 
     # Then check scalars / vectors
@@ -188,15 +191,22 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     
     # Check angles in terrain_angles, .any checks every array value
     terrain_array = np.asarray(terrain_angle)
-    if np.any(terrain_array < - 75) or np.any(terrain_array > - 75):
+
+    # Must adapt dynamically, if out of range return NaN (?)
+    if np.any(terrain_array < - 75) or np.any(terrain_array > 75):
         raise Exception('terrain angle is out of range; -75 to 75 degrees')
     
     # execute calculations for rolling resistance
     # Frr must always oppose motion so it must be negative
 
-    magnitude = Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))
+    gear_ratio = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
+    radius = rover['wheel']['radius']
 
-    Frr = -1 * abs(magnitude)
+    magnitude = Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))
+    speed = radius * (omega / gear_ratio)
+
+    Frr_simple = magnitude
+    Frr = math.erf(40*speed) * Frr_simple
 
     return Frr
 
