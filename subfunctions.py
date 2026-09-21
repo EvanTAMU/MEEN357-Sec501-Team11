@@ -2,9 +2,39 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | float | int:
+def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
     and  a  dictionary  containing important specifications for the motor"""
+
+    # Rewritten code for 
+    if not isinstance(motor,dict):
+        raise Exception('motor is not a valid input type; dict')
+    
+    required_keys = ["speed_noload", "torque_stall", "torque_noload"]
+    if not all(key in motor for key in required_keys):
+        raise Exception('motor dictionary is missing required specifications')
+    
+    is_scalar = np.isscalar(omega)
+    is_vector = isinstance(omega, np.ndarray) and omega.ndim = 1
+
+    if not (is_scalar or is_vector):
+        raise Exception('omega must be a scaler or a 1D numpy array (vector)')
+
+    # Get motor propertires
+    speed_noload = motor["speed_noload"] # rad/s | No load speed (MAX)
+    torque_stall = motor["torque_stall"] # Nm | Motor Stall torque (MAX)
+    torque_noload = motor["torque_noload"] # Nm | No load torque (0)
+
+    slope = (torque_stall - torque_noload) / speed_noload
+    tau = torque_stall - (slope * omega)
+
+    tau = np.where(omega < 0, torque_stall, tau)
+    tau = np.where(omega > speed_noload, 0, tau)
+
+    if is_scalar:
+        return float(tau)
+    else:
+        return np.asarray(tau)
 
     # INPUT CHECKS
     # omega
@@ -19,7 +49,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
     torque_noload = motor["torque_noload"] # Nm | No load torque (0)
     
     # Do a loop if an array, otherwise just run the math
-    if isinstance(omega,np.ndarray):
+    if isinstance(omega, np.ndarray):
         tau = [] # make it a list then a numpy array (easier!)
 
         for w in range(len(omega)):
