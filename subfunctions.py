@@ -27,7 +27,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
                 # The wheel is turning BACKWARDS, a force is pushing it back
                 #print("Motor is spinning backwards~")
                 tau.append(torque_stall)
-            if (omega[w] >= speed_noload):
+            elif (omega[w] >= speed_noload):
                 #print("Wheel is being spun forward~")
                 tau.append(0) # Return tau = 0 if wheel is being forced faster than possible
 
@@ -42,7 +42,7 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
         if (omega < 0):
             # The wheel is turning BACKWARDS, a force is pushing it back
             tau = torque_stall
-        if (omega >= speed_noload):
+        elif (omega >= speed_noload):
             # Return tau = 0 if wheel is being forced faster than possible
             tau = 0
         else: tau = (torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega))
