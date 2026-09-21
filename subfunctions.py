@@ -1,12 +1,6 @@
 #import libraries
-from matplotlib.pylab import size
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-#from sqlalchemy import false
-
-# DONE!
 
 def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | float | int:
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
@@ -14,12 +8,11 @@ def tau_dcmotor(omega: np.ndarray | int | float, motor: dict) -> np.ndarray | fl
 
     # INPUT CHECKS
     # omega
-    if not isinstance(omega,(np.ndarray,int,float)):
-        print(type(omega))  #IS THIS NEEDED TO PRINT THE TYPE?
-        raise Exception('Omega is not a valid input type;  np.ndarray, float, int')
+    if not isinstance(omega,(np.ndarray,np.number,int,float)):
+        raise Exception('omega is not a valid input type; np.ndarray, float, int')
     # motor
     if not isinstance(motor,dict):
-        raise Exception('motor is not a valid input type;  dict')
+        raise Exception('motor is not a valid input type; dict')
 
     speed_noload = motor["speed_noload"] # rad/s | No load speed (MAX)
     torque_stall = motor["torque_stall"] # Nm | Motor Stall torque (MAX)
@@ -62,12 +55,12 @@ def get_gear_ratio(speed_reducer):
     #CHECK INPUTS
     #check that speed_reducer is a dictionary
     if not isinstance(speed_reducer,dict):
-        raise Exception('speed_reducer is not valid, ensure; dict')
+        raise Exception('speed_reducer is not a valid input type; dict')
 
     #String comparison function
     lower_case_speed_reducer_type = speed_reducer['type'].lower() #turns type into lower case
     if not lower_case_speed_reducer_type == 'reverted': 
-        raise Exception('speed_reducer type is invalid, ensure; reverted')
+        raise Exception('speed_reducer[type] is not a valid input type; \"reverted\"')
 
     #CALCULATION
     d2 = speed_reducer['diam_gear'] 
@@ -84,7 +77,7 @@ def get_mass(rover):
     #INPUT CHECKS 
     #check that rover is a dictionary 
     if not isinstance(rover,dict):
-            raise Exception('rover is not a valid input type;  dict')
+        raise Exception('rover is not a valid input type;  dict')
     
 
     #rover dictionary for all masses of the rover components
@@ -111,7 +104,7 @@ def F_drive(omega,rover):
 
     #INPUT CHECKS
     #check that omega is a scalar or vector
-    if not isinstance(omega,(np.ndarray,int,float)):
+    if not isinstance(omega,(np.ndarray,np.number,int,float)):
         raise Exception('Omega is not a valid input type;  np.ndarray, float, int')
     #check that rover is a dictionary
     if not isinstance(rover,dict): 
@@ -122,7 +115,7 @@ def F_drive(omega,rover):
     tau_motor = tau_dcmotor(omega,rover['wheel_assembly']['motor']) # n*m
 
     #call gear ratio to get speed reduction ratio (Ng)
-    Ng = gear_ratio = get_gear_ratio(rover['wheel_assembly']['speed_reducer']) 
+    Ng = get_gear_ratio(rover['wheel_assembly']['speed_reducer']) 
 
     #radius of the wheel 
     radius = rover['wheel_assembly']['wheel']['radius'] 
@@ -144,22 +137,22 @@ def F_gravity(terrain_angle, rover, planet):
     
     #INPUT CHECKS
     #check terrain angle is a scalar of vector
-    if not isinstance(terrain_angle,(np.ndarray,int,float)):
-            raise Exception('Terrain angle is not a valid input type; np.ndarray | float | int')
+    if not isinstance(terrain_angle,(np.ndarray,np.number,int,float)):
+        raise Exception('Terrain angle is not a valid input type; np.ndarray, float, int')
 
     # Validating input angle is within range [-75,75] degrees
     # use np.asanarray to convert terrain_angle into array if not already. allows for scalar or vector pass through
     angle_array = np.asanyarray(terrain_angle)
     if not np.all((angle_array >= -75) & (angle_array <= 75)):
-            raise Exception('Terrain angle is not a valid input value.')
+        raise Exception('Terrain angle is not a valid input value; -75 to 75 degrees')
 
     # check rover is dict
     if not isinstance(rover,dict):
-            raise Exception('Rover is not a valid input type;  dict')
+        raise Exception('Rover is not a valid input type;  dict')
 
     # check planet is dict
     if not isinstance(planet,dict):
-            raise Exception('Planet is not a valid input type;  dict')
+        raise Exception('Planet is not a valid input type;  dict')
 
     # call get_mass to get the total mass of the rover
     total_mass = get_mass(rover)
@@ -178,26 +171,26 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     m = get_mass(rover)
 
     #check parameters
-    if not np.isscalar(omega) :
-        raise Exception('motor shaft speed is not a scalar')
+    if not isinstance(omega,(np.number,int,float)):
+        raise Exception('omega is not a valid input type; float, int')
     
-    if not np.isscalar(terrain_angle) :
-        raise Exception('terrain angle is not a scalar')
+    if not isinstance(terrain_angle,(np.number,int,float)):
+        raise Exception('terrain angle is not a valid input type; float, int')
     
-    if not size(omega) == size(terrain_angle):
-        raise Exception('motor shaft speed and terrain angle are not the same size')
+    if not np.shape(omega) == np.shape(terrain_angle):
+        raise Exception('omega and terrain angle are not the same size')
     
     if not (-75 <= terrain_angle <= 75) :
-        raise Exception('terrain angle is out of range')
+        raise Exception('terrain angle is out of range; -75 to 75 degrees')
     
     if not isinstance(rover, dict) :
-        raise Exception('rover is not dict')
+        raise Exception('rover is not a valid input type; dict')
     
     if not isinstance(planet, dict) :
-        raise Exception('planet is not dict')
+        raise Exception('planet is not a valid input type; dict')
     
-    if not (np.isscalar(Crr) and Crr > 0):
-        raise Exception('Crr is not a positive scalar')
+    if not (isinstance(Crr,(np.number,float,int)) and Crr > 0):
+        raise Exception('crr is not a valid input type; positive float, positive int')
    
     
     # execute calculations for rolling resistance
@@ -208,35 +201,38 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
 
 
 def F_net(omega, terrain_angle, rover, planet, Crr):
-    """Returns  the  magnitude  of  net  force  acting  on  the  rover  in  the  direction  of  its  translational 
-    motion."""
+    """Returns the magnitude of net force acting on the rover in the direction of its translational motion."""
 
-    #call functions
+    # check parameters
+    if not isinstance(rover, dict):
+        raise Exception('rover is not a valid input type; dict')
+    
+    if not isinstance(planet, dict):
+        raise Exception('planet is not a valid input type; dict')
+    
+    if not (isinstance(Crr, (np.number, float, int)) and Crr > 0):
+        raise Exception('crr is not a valid input type; positive float, positive int')
+
+    omega_scalar = np.isscalar(omega)
+    terrain_angle_scalar = np.isscalar(terrain_angle)
+
+    if omega_scalar != terrain_angle_scalar: # If they aren't the same
+        raise Exception('motor shaft speed and terrain angle must be scalars or arrays of the same size')
+    
+    if not omega_scalar and np.shape(omega) != np.shape(terrain_angle):
+        raise Exception('motor shaft speed and terrain angle are not the same size array')
+    
+    # check the terrain angle, if array or not
+    terrain_array = np.asarray(terrain_angle)
+    if np.any(terrain_array < -75) or np.any(terrain_array > 75):
+        raise Exception('terrain angle is out of range; -75 to 75 degrees')
+        
+    # call functions only after inputs are checked
     drive = F_drive(omega, rover)
     gravity = F_gravity(terrain_angle, rover, planet)
     rolling = F_rolling(omega, terrain_angle, rover, planet, Crr)
-    omega_scalar = np.isscalar(omega)
-    terrain_angle_scalar = np.isscalar(terrain_angle)
-    #check parameters
-    if omega_scalar != terrain_angle_scalar:
-        raise Exception('motor shaft speed and terrain angle must be scalars or arrays of the same size')
     
-    if not omega_scalar and size(omega) != size(terrain_angle):
-        raise Exception('motor shaft speed and terrain angle are not the same size array')
-    
-    if not (-75 <= terrain_angle <= 75) :
-        raise Exception('terrain angle is out of range')
-    
-    if not isinstance(rover, dict) :
-        raise Exception('rover is not dict')
-    
-    if not isinstance(planet, dict) :
-        raise Exception('planet is not dict')
-    
-    if not (np.isscalar(Crr) and Crr > 0) :
-        raise Exception('Crr is not a positive scalar')
-        
-    #execute calculations for net force
+    # calculate and return net force
     Fnet = drive + gravity + rolling
 
     return Fnet
