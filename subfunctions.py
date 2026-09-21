@@ -230,7 +230,7 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
         raise Exception('planet is not a valid input type; dict')
     
     if not (isinstance(Crr, (np.number, float, int)) and Crr > 0):
-        raise Exception('crr is not a valid input type; positive float, positive int')
+        raise Exception('Crr must be a positive scalar')
 
     omega_scalar = np.isscalar(omega)
     terrain_angle_scalar = np.isscalar(terrain_angle)
