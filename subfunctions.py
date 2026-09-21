@@ -36,49 +36,6 @@ def tau_dcmotor(omega, motor):
     else:
         return np.asarray(tau)
 
-    # INPUT CHECKS
-    # omega
-    if not isinstance(omega,(np.ndarray,np.number,int,float)):
-        raise Exception('omega is not a valid input type; np.ndarray, float, int')
-    # motor
-    if not isinstance(motor,dict):
-        raise Exception('motor is not a valid input type; dict')
-
-    speed_noload = motor["speed_noload"] # rad/s | No load speed (MAX)
-    torque_stall = motor["torque_stall"] # Nm | Motor Stall torque (MAX)
-    torque_noload = motor["torque_noload"] # Nm | No load torque (0)
-    
-    # Do a loop if an array, otherwise just run the math
-    if isinstance(omega, np.ndarray):
-        tau = [] # make it a list then a numpy array (easier!)
-
-        for w in range(len(omega)):
-            if (omega[w] < 0):
-                # The wheel is turning BACKWARDS, a force is pushing it back
-                #print("Motor is spinning backwards~")
-                tau.append(torque_stall)
-            elif (omega[w] >= speed_noload):
-                #print("Wheel is being spun forward~")
-                tau.append(0) # Return tau = 0 if wheel is being forced faster than possible
-
-            # Do this for every element in the numpy array
-
-            else: tau.append((torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega[w])))
-
-        return np.array(tau)
-
-    else: 
-        tau = None
-        if (omega < 0):
-            # The wheel is turning BACKWARDS, a force is pushing it back
-            tau = torque_stall
-        elif (omega >= speed_noload):
-            # Return tau = 0 if wheel is being forced faster than possible
-            tau = 0
-        else: tau = (torque_stall - (((torque_stall - torque_noload) / speed_noload) * omega))
-
-        return float(tau) # Return a scalar, if input is not nparray
-
 def get_gear_ratio(speed_reducer):
     """Returns the speed reduction ratio for the speed reducer based on speed_reducer dict."""
 
@@ -135,7 +92,7 @@ def F_drive(omega,rover):
     #INPUT CHECKS
     #check that omega is a scalar or vector
     if not isinstance(omega,(np.ndarray,np.number,int,float)):
-        raise Exception('Omega is not a valid input type;  np.ndarray, float, int')
+        raise Exception('omega must be a scaler or a 1D numpy array (vector)')
     #check that rover is a dictionary
     if not isinstance(rover,dict): 
         raise Exception('rover is not a valid input type; dict')
