@@ -206,7 +206,15 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     speed = radius * (omega / gear_ratio)
 
     Frr_simple = magnitude
-    Frr = math.erf(40*speed) * Frr_simple
+    
+    # If it's a single number, math.erf works normally
+    if omega_is_scalar:
+        Frr = math.erf(40 * speed) * Frr_simple
+        
+    # If it's an array, we apply math.erf to each element and convert it back to a numpy array
+    else:
+        erf_values = np.array([math.erf(40 * s) for s in speed])
+        Frr = erf_values * Frr_simple
 
     return Frr
 
