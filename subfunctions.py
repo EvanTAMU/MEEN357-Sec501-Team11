@@ -15,7 +15,7 @@ def tau_dcmotor(omega, motor):
         raise Exception('motor dictionary is missing required specifications')
     
     is_scalar = np.isscalar(omega)
-    is_vector = isinstance(omega, np.ndarray) and omega.ndim = 1
+    is_vector = isinstance(omega, np.ndarray) and omega.ndim == 1
 
     if not (is_scalar or is_vector):
         raise Exception('omega must be a scaler or a 1D numpy array (vector)')
