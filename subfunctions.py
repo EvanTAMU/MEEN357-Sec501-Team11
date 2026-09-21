@@ -6,7 +6,7 @@ def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
     and  a  dictionary  containing important specifications for the motor"""
 
-    # Rewritten code for 
+    # Rewritten code for dcmotor, now with key checker
     if not isinstance(motor,dict):
         raise Exception('motor is not a valid input type; dict')
     
@@ -155,21 +155,9 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     motion  due  to  rolling  resistances  given  the  terrain  inclination  angle,  rover  properties,  and  a 
     rolling resistance coefficient. """
 
-    m = get_mass(rover)
-
-    #check parameters
-    if not isinstance(omega,(np.number,int,float)):
-        raise Exception('omega is not a valid input type; float, int')
+    #check parameters, CAN BE A VECTOR
     
-    if not isinstance(terrain_angle,(np.number,int,float)):
-        raise Exception('terrain angle is not a valid input type; float, int')
-    
-    if not np.shape(omega) == np.shape(terrain_angle):
-        raise Exception('omega and terrain angle are not the same size')
-    
-    if not (-75 <= terrain_angle <= 75) :
-        raise Exception('terrain angle is out of range; -75 to 75 degrees')
-    
+    # First check dicts
     if not isinstance(rover, dict) :
         raise Exception('rover is not a valid input type; dict')
     
@@ -178,11 +166,37 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     
     if not (isinstance(Crr,(np.number,float,int)) and Crr > 0):
         raise Exception('crr is not a valid input type; positive float, positive int')
+
+    m = get_mass(rover)   
+
+    # Then check scalars / vectors
+
+    omega_is_scalar = np.isscalar(omega)
+    omega_is_vector = isinstance(omega, np.ndarray) and omega.ndim == 1
+
+    if not (omega_is_scalar or omega_is_vector):
+        raise Exception('omega must be a scalar or a 1D numpy array (vector)')
    
+    terrain_is_scalar = np.isscalar(terrain_angle)
+    terrain_is_vector = isinstance(terrain_angle, np.ndarray) and terrain_angle.ndim == 1
+
+    if not (terrain_is_scalar or terrain_is_vector):
+        raise Exception('terrain angle must be a scalar or a 1D numpy array (vector)')
+    # Check to see if shapes are the same
+    if np.shape(omega) != np.shape(terrain_angle):
+        raise Exception('omega and terrain angle are not the same size')
+    
+    # Check angles in terrain_angles, .any checks every array value
+    terrain_array = np.asarray(terrain_angle)
+    if np.any(terrain_array < - 75 or terrain_array > - 75):
+        raise Exception('terrain angle is out of range; -75 to 75 degrees')
     
     # execute calculations for rolling resistance
     # Frr must always oppose motion so it must be negative
-    Frr = -1 * abs(Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))) 
+
+    magnitude = Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))
+
+    Frr = -1 * abs(magnitude)
 
     return Frr
 
