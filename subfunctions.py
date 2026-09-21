@@ -200,7 +200,7 @@ def F_rolling(omega, terrain_angle, rover, planet, Crr):
     # Frr must always oppose motion so it must be negative
 
     gear_ratio = get_gear_ratio(rover['wheel_assembly']['speed_reducer'])
-    radius = rover['wheel']['radius']
+    radius = rover['wheel_assembly']['wheel']['radius']
 
     magnitude = Crr * m * planet['g'] * np.cos(np.radians(terrain_angle))
     speed = radius * (omega / gear_ratio)
