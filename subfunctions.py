@@ -257,3 +257,39 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
     return Fnet
 
     
+# PART 2
+
+def motorW(v ,rover):
+    # v is scalar/float or 1D array
+    # rover is dict
+
+    w = None
+    return w
+
+def rover_dynamics(t,y,rover,planet,experiment):
+    # t is scalar
+    # y is a 1D array
+    # rover, planet, experiment are dict
+
+    dydt = None # 1D array
+    return dydt
+
+def mechpower(v, rover):
+    # v is scalar/float or arrary
+    # rover is dict
+    P = None # 1D array or scalar/float
+    return P
+
+def battenergy(t,v,rover):
+    # t is 1D numpy array
+    # v is 1D numpy array
+    # rover is a dict
+    E = None # scalar
+    return E
+
+
+# The BIG subfunction, runs the simulation!
+def simulate_rover(rover,planet,experiment,end_event):
+    # rover/planet/experiment/end_event dict
+    rover = rover
+    return rover # dict, fill with telemetry data!
