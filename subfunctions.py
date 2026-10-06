@@ -19,7 +19,7 @@ def tau_dcmotor(omega, motor):
     is_vector = isinstance(omega, np.ndarray) and omega.ndim == 1
 
     if not (is_scalar or is_vector):
-        raise Exception('omega must be a scaler or a 1D numpy array (vector)')
+        raise Exception('omega must be a scalar or a 1D numpy array (vector)')
 
     # Get motor propertires
     speed_noload = motor["speed_noload"] # rad/s | No load speed (MAX)
@@ -256,17 +256,49 @@ def F_net(omega, terrain_angle, rover, planet, Crr):
 
     return Fnet
 
-    
-# PART 2
+# ===================--------===================
+# ===================-PART 2-===================
+# ===================--------===================
 
-def motorW(v ,rover):
+def motorW(v, rover):
+    """Computes the rotational speed of the motor shaft [rad/s] given the translational
+    velocity of the rover and the rover dictionary"""
     # v is scalar/float or 1D array
     # rover is dict
 
-    w = None
-    return w
+    # Should call get_gear_ratio
+
+    # w = (v / r)
+
+    # Used rewritten code for dcmotor with key checker
+    if not isinstance(rover,dict):
+        raise Exception('rover is not a valid input type; dict')
+    
+    required_keys = ["wheel_assembly"]
+    if not all(key in rover for key in required_keys):
+        raise Exception('rover dictionary is missing required specifications')
+    
+    is_scalar = np.isscalar(v)
+    is_vector = isinstance(v, np.ndarray) and v.ndim == 1
+
+    if not (is_scalar or is_vector):
+        raise Exception('v must be a scalar or a 1D numpy array (vector)')
+
+    # Get motor/wheel propertires
+    gear_ratio = get_gear_ratio(rover["wheel_assembly"]["speed_reducer"])
+    radius = rover["wheel_assembly"]["wheel"]["radius"]
+
+    w = (v / radius) * gear_ratio
+
+    if is_scalar:
+        return float(w)
+    else:
+        return np.asarray(w)
 
 def rover_dynamics(t,y,rover,planet,experiment):
+    """This function computes the derivative of the state vector (state vector is:[velocity, position]) for the
+    rover given its current state. It requires rover and experiment dictionary input parameters. It is
+    intended to be passed to an ODE solver."""
     # t is scalar
     # y is a 1D array
     # rover, planet, experiment are dict
@@ -275,10 +307,35 @@ def rover_dynamics(t,y,rover,planet,experiment):
     return dydt
 
 def mechpower(v, rover):
+    """This function computes the instantaneous mechanical power output by a 
+    single DC motor at each point in a given velocity profile."""
     # v is scalar/float or arrary
     # rover is dict
-    P = None # 1D array or scalar/float
-    return P
+
+    # Used rewritten code for dcmotor with key checker
+    if not isinstance(rover,dict):
+        raise Exception('rover is not a valid input type; dict')
+    
+    required_keys = ["wheel_assembly"]
+    if not all(key in rover for key in required_keys):
+        raise Exception('rover dictionary is missing required specifications')
+    
+    is_scalar = np.isscalar(v)
+    is_vector = isinstance(v, np.ndarray) and v.ndim == 1
+
+    if not (is_scalar or is_vector):
+        raise Exception('v must be a scalar or a 1D numpy array (vector)')
+
+    # Get motor/wheel propertires
+    motor_speed = motorW(v,rover) # comes back as scalar or an array
+    motor_torque = tau_dcmotor(motor_speed, rover["wheel_assembly"]["motor"]) # returns with a scalar or an arrary
+
+    P = motor_speed*motor_torque
+
+    if is_scalar:
+        return float(P)
+    else:
+        return np.asarray(P)
 
 def battenergy(t,v,rover):
     # t is 1D numpy array
