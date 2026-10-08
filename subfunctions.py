@@ -303,6 +303,26 @@ def rover_dynamics(t,y,rover,planet,experiment):
     # y is a 1D array
     # rover, planet, experiment are dict
 
+    # check rover
+    if not isinstance(rover, dict):
+        raise Exception('rover is not a valid input type; dict')
+    
+    # check planet
+    if not isinstance(planet, dict):
+        raise Exception('planet is not a valid input type; dict')
+    
+    # check experiment
+    if not isinstance(experiment, dict):
+        raise Exception('experiment is not a valid input type; dict')
+    
+    #check t is scalar
+    if not np.isscalar(t):
+        raise Exception('t must be a scalar')
+    
+    # check y is a 1D array
+    if not (isinstance(y, np.ndarray) and y.ndim == 1):
+        raise Exception('y must be a 1D numpy array')
+        
     dydt = None # 1D array
     return dydt
 
