@@ -1,7 +1,10 @@
 #import libraries
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+from scipy.integrate import simpson 
 import math
+
 
 def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
@@ -358,15 +361,60 @@ def mechpower(v, rover):
         return np.asarray(P)
 
 def battenergy(t,v,rover):
-    # t is 1D numpy array
-    # v is 1D numpy array
+    # computes the total energy consumed, in Joules, from the rover batteries over the course of a simulation run
+    # t is 1D numpy array is the time vector from the simulation
+    # v is 1D numpy array is the velocity vector from the simulation
+    #This function accounts for the inefficiencies of transforming electrical energy to mechanical energy using a DCmotor
     # rover is a dict
-    E = None # scalar
+
+    # Data input checks
+    if not isinstance(rover,dict):
+            raise Exception('rover is not a valid input type; dict')
+
+    if not isinstance(t,np.ndarray) or t.ndim != 1:
+        raise Exception('t is not a valid input type; 1D array')
+
+    if not isinstance(v,np.ndarray) or v.ndim != 1:
+        raise Exception('v is not a valid input type; 1D array')
+
+    if len(v) != len(t) : 
+        raise Exception('v and t are not the same length')
+
+    # process: 1. find power_batt, 2. integrate power_batt
+
+    #define parameters for p_mech and tau_dcmotor
+    motor = rover['wheel_assembly']['motor']
+    omega = motorW(v,rover)
+
+    # power from motor
+    p_mech = mechpower(v,rover)
+    tau = tau_dcmotor(omega, motor) 
+
+    # cubic spline interp1d(x, y, kind='linear', axis=-1, copy=True, bounds_error=None, fill_value=nan, assume_sorted=False)
+    effcy_tau = rover["wheel_assembly"]["motor"]["effcy_tau"]
+    effcy = rover["wheel_assembly"]["motor"]["effcy"]
+    effcy_fun = interp1d(effcy_tau, effcy, kind = 'cubic')
+
+    # find effcy_fun for tau
+    n = effcy_fun(tau)
+
+    # define battery power as function of motor power and efficiency at tau. *6 because 6 wheels
+    power_batt = 6 * p_mech/(n) #this is the power demand 
+
+    # potential divide by zero bug that will need fixing
+
+    # integrate p_batt over time using simppsons rule
+    E = simpson(power_batt, x=t) 
+
     return E
 
 
 # The BIG subfunction, runs the simulation!
 def simulate_rover(rover,planet,experiment,end_event):
     # rover/planet/experiment/end_event dict
+
+    # what does it do
+        # integrates trajectory rover according to terrain and initial conditions
+        # defines necessary and sifficient conditions to terminate simulation
     rover = rover
     return rover # dict, fill with telemetry data!
