@@ -2,8 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from scipy.integrate import solve_ivp
 from scipy.integrate import simpson 
 import math
+
 
 
 def tau_dcmotor(omega, motor):
@@ -325,8 +327,43 @@ def rover_dynamics(t,y,rover,planet,experiment):
     # check y is a 1D array
     if not (isinstance(y, np.ndarray) and y.ndim == 1):
         raise Exception('y must be a 1D numpy array')
-        
-    dydt = None # 1D array
+
+    # y = [velocity, position]
+    # dydt = [acceleration, velocity]
+
+    # state variables
+    v = y[0]
+    p = y[1]
+
+    # calculate F_net.
+        # gravitational and rolling resistance froces are funtions of alpha but otherwise independent of vehicle dynamics
+        # drive Force is a function of rover dynamical behavior
+
+    # define angular velocity
+    omega = motorW(v,rover)
+
+    # define terrain angle as interpolated value from dictionary containing arrays of position and angle
+    # may need to define alpha fun in experiment to optimize 
+    alpha_dist = experiment['alpha_dist']
+    alpha_deg = experiment['alpha_deg']
+    alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
+    terrain_angle = alpha_fun(p)
+
+    # define Crr
+    Crr = experiment['Crr']
+
+    # define F_net by calling the sub function F_net
+    F_net = F_net(omega, terrain_angle, rover, planet, Crr) 
+
+
+    # call get_mass to get the total mass of the rover. non dynamic 
+    rover_mass = get_mass(rover)
+
+    # define acceleration
+    acceleration = F_net/rover_mass
+
+    # define dydt with acceleration and velocity 
+    dydt = np.array([acceleration, y[0]])
     return dydt
 
 def mechpower(v, rover):
@@ -411,10 +448,61 @@ def battenergy(t,v,rover):
 
 # The BIG subfunction, runs the simulation!
 def simulate_rover(rover,planet,experiment,end_event):
-    # rover/planet/experiment/end_event dict
+    # uses an ODE to integrate. 
 
     # what does it do
         # integrates trajectory rover according to terrain and initial conditions
         # defines necessary and sifficient conditions to terminate simulation
-    rover = rover
+    rover 
+    planet
+    experiment 
+    end_event
+
+    # update rover['telemetry']
+    time = N_element array 
+    completion_time = time to complete mission 
+    velocity = N element array containing velocity of rover 
+    position = N-element array containing the position of the rover
+    distance_traveled = total distance traveled by the rover
+    max_velocity = maxium velocity 
+    avergae_velocity = avergage velocity along given trajectory 
+    power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    battery_energy = total energy extracted from the battery to complete trajectory
+    energy_per_distance = total energy spent
+
     return rover # dict, fill with telemetry data!
+
+def end_of_mission_event(end_event):
+    """
+    Defines an event that terminates the mission simulation. Mission is over
+    when rover reaches a certain distance, has moved for a maximum simulation 
+    time or has reached a minimum velocity.            
+    """
+    
+    mission_distance = end_event['max_distance']
+    mission_max_time = end_event['max_time']
+    mission_min_velocity = end_event['min_velocity']
+    
+    # Assume that y[1] is the distance traveled
+    distance_left = lambda t,y: mission_distance - y[1]
+    distance_left.terminal = True
+    
+    time_left = lambda t,y: mission_max_time - t
+    time_left.terminal = True
+    
+    velocity_threshold = lambda t,y: y[0] - mission_min_velocity;
+    velocity_threshold.terminal = True
+    velocity_threshold.direction = -1
+    
+    # terminal indicates whether any of the conditions can lead to the
+    # termination of the ODE solver. In this case all conditions can terminate
+    # the simulation independently.
+    
+    # direction indicates whether the direction along which the different
+    # conditions is reached matters or does not matter. In this case, only
+    # the direction in which the velocity treshold is arrived at matters
+    # (negative)
+    
+    events = [distance_left, time_left, velocity_threshold]
+    
+    return events
