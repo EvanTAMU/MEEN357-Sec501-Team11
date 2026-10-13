@@ -358,10 +358,10 @@ def rover_dynamics(t,y,rover,planet,experiment):
     terrainangle = alpha_fun(p)
 
     #check that terrainangle is a scalar or 1D array
-    is_scalar = np.isscalar(terrainangle)
-    is_vector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim == 1
+    is_tascalar = np.isscalar(terrainangle)
+    is_tavector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim == 1
 
-    if not (is_scalar or is_vector):
+    if not (is_tascalar or is_tavector):
         raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
     
     # define Crr
