@@ -328,6 +328,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
     if not (isinstance(y, np.ndarray) and y.ndim == 1):
         raise Exception('y must be a 1D numpy array')
 
+
     # y = [velocity, position]
     # dydt = [acceleration, velocity]
 
@@ -340,30 +341,44 @@ def rover_dynamics(t,y,rover,planet,experiment):
         # drive Force is a function of rover dynamical behavior
 
     # define angular velocity
-    omega = motorW(v,rover)
+    omega_val = motorW(v,rover)
+
+    #check that omega_val is a scalar or 1D array
+    is_scalar = np.isscalar(omega_val)
+    is_vector = isinstance(omega_val, np.ndarray) and omega_val.ndim == 1
+        
+    if not (is_scalar or is_vector):
+        raise Exception('Motor shaft speed must be a scalar or a 1D numpy array (vector)')
 
     # define terrain angle as interpolated value from dictionary containing arrays of position and angle
     # may need to define alpha fun in experiment to optimize 
     alpha_dist = experiment['alpha_dist']
     alpha_deg = experiment['alpha_deg']
     alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
-    terrain_angle = alpha_fun(p)
+    terrainangle = float(alpha_fun(p))
+
+    #check that terrainangle is a scalar or 1D array
+    is_tascalar = np.isscalar(terrainangle)
+    is_tavector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim == 1
+
+    if not (is_tascalar or is_tavector):
+        raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
 
     # define Crr
     Crr = experiment['Crr']
 
     # define F_net by calling the sub function F_net
-    F_net = F_net(omega, terrain_angle, rover, planet, Crr) 
-
+    netforce = F_net(omega_val, terrainangle, rover, planet, Crr) 
 
     # call get_mass to get the total mass of the rover. non dynamic 
     rover_mass = get_mass(rover)
 
     # define acceleration
-    acceleration = F_net/rover_mass
+    acceleration = netforce/rover_mass
 
     # define dydt with acceleration and velocity 
     dydt = np.array([acceleration, y[0]])
+
     return dydt
 
 def mechpower(v, rover):
@@ -459,16 +474,16 @@ def simulate_rover(rover,planet,experiment,end_event):
     end_event
 
     # update rover['telemetry']
-    time = N_element array 
-    completion_time = time to complete mission 
-    velocity = N element array containing velocity of rover 
-    position = N-element array containing the position of the rover
-    distance_traveled = total distance traveled by the rover
-    max_velocity = maxium velocity 
-    avergae_velocity = avergage velocity along given trajectory 
-    power = N-element array of instantaneous power outputted by the motor along the trajectory 
-    battery_energy = total energy extracted from the battery to complete trajectory
-    energy_per_distance = total energy spent
+    # time = N_element array 
+    # completion_time = time to complete mission 
+    # velocity = N element array containing velocity of rover 
+    # position = N-element array containing the position of the rover
+    # distance_traveled = total distance traveled by the rover
+    # max_velocity = maxium velocity 
+    # avergae_velocity = avergage velocity along given trajectory 
+    # power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    # battery_energy = total energy extracted from the battery to complete trajectory
+    # energy_per_distance = total energy spent
 
     return rover # dict, fill with telemetry data!
 
