@@ -355,7 +355,6 @@ def rover_dynamics(t,y,rover,planet,experiment):
     # define F_net by calling the sub function F_net
     netforce = F_net(omega_val, terrainangle, rover, planet, Crr) 
 
-
     # call get_mass to get the total mass of the rover. non dynamic 
     rover_mass = get_mass(rover)
 
@@ -364,6 +363,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
 
     # define dydt with acceleration and velocity 
     dydt = np.array([acceleration, y[0]])
+
     return dydt
 
 def mechpower(v, rover):
