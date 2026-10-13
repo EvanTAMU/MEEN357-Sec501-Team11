@@ -355,14 +355,15 @@ def rover_dynamics(t,y,rover,planet,experiment):
     alpha_dist = experiment['alpha_dist']
     alpha_deg = experiment['alpha_deg']
     alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
-    terrainangle = alpha_fun(p)
+    terrainangle = np.isscalar(alpha_fun(p))
 
     #check that terrainangle is a scalar or 1D array
     is_tascalar = np.isscalar(terrainangle)
+    is_tavector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim == 1
 
-    if not (is_tascalar):
-        raise Exception('Terrain angle must be a scalar')
-    
+    if not (is_tascalar or is_tavector):
+        raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
+
     # define Crr
     Crr = experiment['Crr']
 
