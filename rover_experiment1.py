@@ -60,11 +60,7 @@ rover = simulate_rover(rover,planet,experiment,end_event)
 
 def rover_experiment(rover,):
 
-    rover['telemetry'] = {'completion_time':completion_time, 'distance_traveled':distance_traveled,
-                          'average_velocity':average_velocity, 'battery_energy':battery_energy, 'batt_energy_per_distance':batt_energy_per_distance}
-
-    return rover
-
+    return None
 
 # If module is imported, dosent run the function for no reason
 if __name__ == "__main__":
