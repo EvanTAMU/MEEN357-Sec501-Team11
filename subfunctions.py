@@ -340,27 +340,27 @@ def rover_dynamics(t,y,rover,planet,experiment):
         # drive Force is a function of rover dynamical behavior
 
     # define angular velocity
-    omega = motorW(v,rover)
+    omega_val = motorW(v,rover)
 
     # define terrain angle as interpolated value from dictionary containing arrays of position and angle
     # may need to define alpha fun in experiment to optimize 
     alpha_dist = experiment['alpha_dist']
     alpha_deg = experiment['alpha_deg']
     alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
-    terrain_angle = alpha_fun(p)
+    terrainangle = alpha_fun(p)
 
     # define Crr
     Crr = experiment['Crr']
 
     # define F_net by calling the sub function F_net
-    F_net = F_net(omega, terrain_angle, rover, planet, Crr) 
+    netforce = F_net(omega_val, terrainangle, rover, planet, Crr) 
 
 
     # call get_mass to get the total mass of the rover. non dynamic 
     rover_mass = get_mass(rover)
 
     # define acceleration
-    acceleration = F_net/rover_mass
+    acceleration = netforce/rover_mass
 
     # define dydt with acceleration and velocity 
     dydt = np.array([acceleration, y[0]])
