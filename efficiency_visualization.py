@@ -26,7 +26,7 @@ def effcy_torque(effcy_tau, effcy, value_range):
     effcy_fun = interp1d(effcy_tau, effcy, kind = 'cubic') # fit the cubic spline
 
     plt.plot(value_range,effcy_fun(value_range), '-', label='Cubic Spline', color='brown')
-    plt.plot(effcy_tau, effcy, label = 'Original Data', color='black')
+    plt.plot(effcy_tau, effcy, 'b*', label = 'Original Data', color='black')
     plt.title('Efficiency vs. Torque')
     plt.xlabel('Torque (Nm)')
     plt.ylabel('Efficiency')
