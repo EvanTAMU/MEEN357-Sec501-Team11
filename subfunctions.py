@@ -359,7 +359,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
 
     #check that terrainangle is a scalar or 1D array
     is_scalar = np.isscalar(terrainangle)
-    is_vector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim ==
+    is_vector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim == 1
 
     if not (is_scalar or is_vector):
         raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
