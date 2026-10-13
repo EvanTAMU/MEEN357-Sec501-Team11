@@ -459,16 +459,16 @@ def simulate_rover(rover,planet,experiment,end_event):
     end_event
 
     # update rover['telemetry']
-    time = N_element array 
-    completion_time = time to complete mission 
-    velocity = N element array containing velocity of rover 
-    position = N-element array containing the position of the rover
-    distance_traveled = total distance traveled by the rover
-    max_velocity = maxium velocity 
-    avergae_velocity = avergage velocity along given trajectory 
-    power = N-element array of instantaneous power outputted by the motor along the trajectory 
-    battery_energy = total energy extracted from the battery to complete trajectory
-    energy_per_distance = total energy spent
+    # time = N_element array 
+    # completion_time = time to complete mission 
+    # velocity = N element array containing velocity of rover 
+    # position = N-element array containing the position of the rover
+    # distance_traveled = total distance traveled by the rover
+    # max_velocity = maxium velocity 
+    # avergae_velocity = avergage velocity along given trajectory 
+    # power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    # battery_energy = total energy extracted from the battery to complete trajectory
+    # energy_per_distance = total energy spent
 
     return rover # dict, fill with telemetry data!
 
