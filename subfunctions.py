@@ -355,7 +355,6 @@ def rover_dynamics(t,y,rover,planet,experiment):
     # define F_net by calling the sub function F_net
     F_net = F_net(omega, terrain_angle, rover, planet, Crr) 
 
-
     # call get_mass to get the total mass of the rover. non dynamic 
     rover_mass = get_mass(rover)
 
@@ -364,6 +363,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
 
     # define dydt with acceleration and velocity 
     dydt = np.array([acceleration, y[0]])
+
     return dydt
 
 def mechpower(v, rover):
@@ -459,16 +459,16 @@ def simulate_rover(rover,planet,experiment,end_event):
     end_event
 
     # update rover['telemetry']
-    time = N_element array 
-    completion_time = time to complete mission 
-    velocity = N element array containing velocity of rover 
-    position = N-element array containing the position of the rover
-    distance_traveled = total distance traveled by the rover
-    max_velocity = maxium velocity 
-    avergae_velocity = avergage velocity along given trajectory 
-    power = N-element array of instantaneous power outputted by the motor along the trajectory 
-    battery_energy = total energy extracted from the battery to complete trajectory
-    energy_per_distance = total energy spent
+    # time = N_element array 
+    # completion_time = time to complete mission 
+    # velocity = N element array containing velocity of rover 
+    # position = N-element array containing the position of the rover
+    # distance_traveled = total distance traveled by the rover
+    # max_velocity = maxium velocity 
+    # avergae_velocity = avergage velocity along given trajectory 
+    # power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    # battery_energy = total energy extracted from the battery to complete trajectory
+    # energy_per_distance = total energy spent
 
     return rover # dict, fill with telemetry data!
 
