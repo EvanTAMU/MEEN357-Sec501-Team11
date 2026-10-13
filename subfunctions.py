@@ -328,6 +328,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
     if not (isinstance(y, np.ndarray) and y.ndim == 1):
         raise Exception('y must be a 1D numpy array')
 
+
     # y = [velocity, position]
     # dydt = [acceleration, velocity]
 
@@ -342,6 +343,13 @@ def rover_dynamics(t,y,rover,planet,experiment):
     # define angular velocity
     omega_val = motorW(v,rover)
 
+    #check that omega_val is a scalar or 1D array
+    is_scalar = np.isscalar(omega_val)
+    is_vector = isinstance(omega_val, np.ndarray) and omega_val.ndim == 1
+        
+    if not (is_scalar or is_vector):
+        raise Exception('Motor shaft speed must be a scalar or a 1D numpy array (vector)')
+
     # define terrain angle as interpolated value from dictionary containing arrays of position and angle
     # may need to define alpha fun in experiment to optimize 
     alpha_dist = experiment['alpha_dist']
@@ -349,6 +357,13 @@ def rover_dynamics(t,y,rover,planet,experiment):
     alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
     terrainangle = alpha_fun(p)
 
+    #check that terrainangle is a scalar or 1D array
+    is_scalar = np.isscalar(terrainangle)
+    is_vector = isinstance(terrainangle, np.ndarray) and terrainangle.ndim ==
+
+    if not (is_scalar or is_vector):
+        raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
+    
     # define Crr
     Crr = experiment['Crr']
 
