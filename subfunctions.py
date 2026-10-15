@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-from scipy.integrate import solve_ivp, simpson
+from scipy.integrate import solve_ivp, trapezoid
 import math
 
 def tau_dcmotor(omega, motor):
@@ -455,7 +455,7 @@ def battenergy(t,v,rover):
     # potential divide by zero bug that will need fixing
 
     # integrate p_batt over time using simppsons rule
-    E = simpson(power_batt, x=t) 
+    E = trapezoid(power_batt, x=t) 
 
     return E
 
