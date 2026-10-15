@@ -2,10 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-from scipy.integrate import solve_ivp, simpson, trapezoid
+from scipy.integrate import solve_ivp, simpson
 import math
-
-
 
 def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
@@ -354,7 +352,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
     alpha_dist = experiment['alpha_dist']
     alpha_deg = experiment['alpha_deg']
     alpha_fun = interp1d(alpha_dist, alpha_deg, kind = "cubic", fill_value = 'extrapolate') # fit the cubic spline
-    terrainangle = alpha_fun(p)   
+    terrainangle = float(alpha_fun(p))
 
     #check that terrainangle is a scalar or 1D array
     is_tascalar = np.isscalar(terrainangle)
@@ -362,7 +360,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
 
     if not (is_tascalar or is_tavector):
         raise Exception('Terrain angle must be a scalar or a 1D numpy array (vector)')
-    
+
     # define Crr
     Crr = experiment['Crr']
 
@@ -376,7 +374,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
     acceleration = netforce/rover_mass
 
     # define dydt with acceleration and velocity 
-    dydt = np.array([acceleration, y[0]])
+    dydt = np.array([float(acceleration), float(v)])
 
     return dydt
 
@@ -412,6 +410,8 @@ def mechpower(v, rover):
         return np.asarray(P)
 
 def battenergy(t,v,rover):
+    """This function computes the total electrical energy consumed from the rover battery pack over a simulation profile, 
+    defined as time-velocity pairs. This function assumes all 6 motors are driven from the same battery pack"""
     # computes the total energy consumed, in Joules, from the rover batteries over the course of a simulation run
     # t is 1D numpy array is the time vector from the simulation
     # v is 1D numpy array is the velocity vector from the simulation
@@ -454,41 +454,10 @@ def battenergy(t,v,rover):
 
     # potential divide by zero bug that will need fixing
 
-
-    # integrate p_batt over time using simppsons rule or trapezoidal integration methods
-    E = trapezoid(power_batt, x=t) 
+    # integrate p_batt over time using simppsons rule
+    E = simpson(power_batt, x=t) 
 
     return E
-
-
-# The BIG subfunction, runs the simulation!
-def simulate_rover(rover,planet,experiment,end_event):
-    # uses an ODE to integrate. 
-
-    # using all the inputs 
-    # ODE is F=ma
-
-    # what does it do
-        # integrates trajectory rover according to terrain and initial conditions
-        # defines necessary and sifficient conditions to terminate simulation
-    rover 
-    planet
-    experiment 
-    end_event
-                    
-    # update rover['telemetry']
-    # time = N_element array 
-    # completion_time = time to complete mission 
-    # velocity = N element array containing velocity of rover 
-    # position = N-element array containing the position of the rover
-    # distance_traveled = total distance traveled by the rover
-    # max_velocity = maxium velocity 
-    # avergae_velocity = avergage velocity along given trajectory 
-    # power = N-element array of instantaneous power outputted by the motor along the trajectory 
-    # battery_energy = total energy extracted from the battery to complete trajectory
-    # energy_per_distance = total energy spent
-
-    return rover # dict, fill with telemetry data!
 
 def end_of_mission_event(end_event):
     """
@@ -524,3 +493,62 @@ def end_of_mission_event(end_event):
     events = [distance_left, time_left, velocity_threshold]
     
     return events
+
+# The BIG subfunction, runs the simulation!
+def simulate_rover(rover,planet,experiment,end_event):
+    '''Updates the rover['telemetry'] dictionary with solved ODE results'''
+    # Check inputs
+    if not (isinstance(rover, dict) and isinstance(planet, dict) and 
+            isinstance(experiment, dict) and isinstance(end_event, dict)):
+        raise Exception("All inputs must be dictionaries.")
+
+    # Get events for the solve_ivp function
+    events = end_of_mission_event(end_event)
+    # Define the inital conditions and time range
+    inital_conditions = experiment['initial_conditions']
+    time_range = experiment['time_range']
+
+    # what does it do
+        # integrates trajectory rover according to terrain and initial conditions
+        # defines necessary and sifficient conditions to terminate simulation
+        # update rover['telemetry']
+    
+    sol = solve_ivp(fun = lambda t, y: rover_dynamics(t,y,rover,planet,experiment), 
+                    t_span=time_range, y0=inital_conditions, method='Radau', events=events)
+
+    # time = N_element array 
+    time = sol.t
+    # completion_time = time to complete mission 
+    completion_time = time[-1]
+    # velocity = N element array containing velocity of rover
+    velocity = sol.y[0,:]
+    # position = N-element array containing the position of the rover
+    position = sol.y[1,:]
+    # distance_traveled = total distance traveled by the rover
+    distance_traveled = position[-1]
+    # max_velocity = maxium velocity 
+    max_velocity = np.max(velocity)
+    # avergae_velocity = avergage velocity along given trajectory 
+    average_velocity = np.mean(velocity)
+    # power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    power = mechpower(velocity,rover)
+    # battery_energy = total energy extracted from the battery to complete trajectory
+    battery_energy = battenergy(time, velocity, rover)
+    # energy_per_distance = total energy spent / total distance
+    energy_per_distance = battery_energy / distance_traveled
+
+
+    rover['telemetry'] = {
+        'Time': time,
+        'completion_time': completion_time,
+        'velocity': velocity,
+        'position': position,
+        'distance_traveled': distance_traveled,
+        'max_velocity': max_velocity,
+        'average_velocity': average_velocity,
+        'power': power,
+        'battery_energy': battery_energy,
+        'energy_per_distance': energy_per_distance
+    }
+
+    return rover # dict, filled with new telemetry data!
