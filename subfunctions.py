@@ -5,8 +5,6 @@ from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp, simpson
 import math
 
-from define_experiment import experiment1
-
 def tau_dcmotor(omega, motor):
     """Returns  the  motor  shaft  torque  when  given  motor  shaft  speed  
     and  a  dictionary  containing important specifications for the motor"""
@@ -376,7 +374,7 @@ def rover_dynamics(t,y,rover,planet,experiment):
     acceleration = netforce/rover_mass
 
     # define dydt with acceleration and velocity 
-    dydt = np.array([acceleration, y[0]])
+    dydt = np.array([float(acceleration), float(v)])
 
     return dydt
 
@@ -498,35 +496,59 @@ def end_of_mission_event(end_event):
 
 # The BIG subfunction, runs the simulation!
 def simulate_rover(rover,planet,experiment,end_event):
-    # uses an ODE to integrate. 
-    
-    experiment, end_event = experiment1()
+    '''Updates the rover['telemetry'] dictionary with solved ODE results'''
+    # Check inputs
+    if not (isinstance(rover, dict) and isinstance(planet, dict) and 
+            isinstance(experiment, dict) and isinstance(end_event, dict)):
+        raise Exception("All inputs must be dictionaries.")
 
-    inital_conditions = experiment['inital_conditions']
-
+    # Get events for the solve_ivp function
+    events = end_of_mission_event(end_event)
+    # Define the inital conditions and time range
+    inital_conditions = experiment['initial_conditions']
+    time_range = experiment['time_range']
 
     # what does it do
         # integrates trajectory rover according to terrain and initial conditions
         # defines necessary and sifficient conditions to terminate simulation
-    rover 
-    planet
-    experiment 
-    end_event
+        # update rover['telemetry']
+    
+    sol = solve_ivp(fun = lambda t, y: rover_dynamics(t,y,rover,planet,experiment), 
+                    t_span=time_range, y0=inital_conditions, method='Radau', events=events)
 
-    # update rover['telemetry']
     # time = N_element array 
+    time = sol.t
     # completion_time = time to complete mission 
-    # velocity = N element array containing velocity of rover 
+    completion_time = time[-1]
+    # velocity = N element array containing velocity of rover
+    velocity = sol.y[0,:]
     # position = N-element array containing the position of the rover
+    position = sol.y[1,:]
     # distance_traveled = total distance traveled by the rover
+    distance_traveled = position[-1]
     # max_velocity = maxium velocity 
+    max_velocity = np.max(velocity)
     # avergae_velocity = avergage velocity along given trajectory 
+    average_velocity = np.mean(velocity)
     # power = N-element array of instantaneous power outputted by the motor along the trajectory 
+    power = mechpower(velocity,rover)
     # battery_energy = total energy extracted from the battery to complete trajectory
-    # energy_per_distance = total energy spent
+    battery_energy = battenergy(time, velocity, rover)
+    # energy_per_distance = total energy spent / total distance
+    energy_per_distance = battery_energy / distance_traveled
 
-    rover['telemetry'] = {'completion_time':completion_time, 'distance_traveled':distance_traveled,
-                              'average_velocity':average_velocity, 'battery_energy':battery_energy, 
-                              'batt_energy_per_distance':batt_energy_per_distance}
 
-    return rover # dict, fill with telemetry data!
+    rover['telemetry'] = {
+        'Time': time,
+        'completion_time': completion_time,
+        'velocity': velocity,
+        'position': position,
+        'distance_traveled': distance_traveled,
+        'max_velocity': max_velocity,
+        'average_velocity': average_velocity,
+        'power': power,
+        'battery_energy': battery_energy,
+        'energy_per_distance': energy_per_distance
+    }
+
+    return rover # dict, filled with new telemetry data!

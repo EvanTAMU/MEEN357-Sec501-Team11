@@ -19,7 +19,7 @@ planet = {
     'g':3.72 # [m/s^2] acceleration due to gravity on Mars
 }
 
-# # used AI to create rover dictionary
+
 rover = {
     'wheel_assembly': {
         'wheel': {
@@ -36,7 +36,9 @@ rover = {
             'torque_stall': 170.0,  # Motor stall torque [N-m]
             'torque_noload': 0.0,   # Motor no-load torque [N-m]
             'speed_noload': 3.80,   # Motor no-load speed [rad/s]
-            'mass': 5.0             # Mass of motor [kg]
+            'mass': 5.0,             # Mass of motor [kg]
+            'effcy_tau': np.array([0,10,20,40,70,165]), # N-element array of torque data points at which efficiency data is gathered [N-m]
+            'effcy': np.array([0,0.55,0.75,0.71,0.50,0.05]) # N-element  array  of  efficiency  measurements  corresponding  to torque data [-]
         }
     },
     'chassis': {
@@ -58,9 +60,41 @@ rover = {
 
 rover = simulate_rover(rover,planet,experiment,end_event)
 
-def rover_experiment(rover,):
+def rover_experiment(rover):
+    # Unpack the new rover telemetry data, display it in 3 sub figures
 
-    return None
+    time = rover['telemetry']['Time']
+    position = rover['telemetry']['position']
+    velocity = rover['telemetry']['velocity']
+    power = rover['telemetry']['power']
+
+    # Assign a style
+    plt.style.use('bmh')
+
+    # Create the figures
+    fig, axs = plt.subplots(3,1, figsize=(7,9))
+
+    # Plot the values
+    axs[0].plot(time,position,'r')
+    axs[0].set_ylabel("Position [m]",rotation ='horizontal',ha="right")
+    axs[0].set_xlabel("Time [s]")
+
+    axs[1].plot(time, velocity,'b')
+    axs[1].set_ylabel("Velocity [m/s]",rotation ='horizontal',ha="right")
+    axs[1].set_xlabel("Time [s]")
+
+    axs[2].plot(time,power,'g')
+    axs[2].set_ylabel("Power [W]",rotation ='horizontal',ha="right")
+    axs[2].set_xlabel("Time [s]")
+
+    # Apply layout and show
+    fig.suptitle("Rover Experiment1 Values Graph", fontsize=16,fontweight="bold")
+
+    plt.tight_layout()
+    plt.subplots_adjust()
+    plt.show()
+
+
 
 # If module is imported, dosent run the function for no reason
 if __name__ == "__main__":
