@@ -513,8 +513,12 @@ def simulate_rover(rover,planet,experiment,end_event):
         # defines necessary and sifficient conditions to terminate simulation
         # update rover['telemetry']
     
+    # define t_eval to create smaller step sizes for IVP solving with radau
+    t_eval = np.linspace(0, end_event['max_time'], 10000)
+
+    # solve the IVP
     sol = solve_ivp(fun = lambda t, y: rover_dynamics(t,y,rover,planet,experiment), 
-                    t_span=time_range, y0=inital_conditions, method='Radau', events=events)
+                    t_span=time_range, y0=inital_conditions, method='Radau', t_eval=t_eval, events=events)
 
     # time = N_element array 
     time = sol.t
