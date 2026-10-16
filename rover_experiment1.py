@@ -60,6 +60,7 @@ rover = {
 
 rover = simulate_rover(rover,planet,experiment,end_event)
 
+
 def rover_experiment(rover):
     # Unpack the new rover telemetry data, display it in 3 sub figures
 
@@ -87,14 +88,16 @@ def rover_experiment(rover):
     axs[2].set_ylabel("Power [W]",rotation ='horizontal',ha="right")
     axs[2].set_xlabel("Time [s]")
 
+    #print telemetry data
+    #print("\nRover Telemetry:")
+    print(rover['telemetry'])
+
     # Apply layout and show
     fig.suptitle("Rover Experiment1 Values Graph", fontsize=16,fontweight="bold")
 
     plt.tight_layout()
     plt.subplots_adjust()
     plt.show()
-
-
 
 # If module is imported, dosent run the function for no reason
 if __name__ == "__main__":
