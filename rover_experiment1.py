@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+import pandas as pd
 
 from define_experiment import experiment1
 from subfunctions import simulate_rover
@@ -89,8 +90,11 @@ def rover_experiment(rover):
     axs[2].set_xlabel("Time [s]")
 
     #print telemetry data
-    #print("\nRover Telemetry:")
-    print(rover['telemetry'])
+    telemetry_table = pd.DataFrame(rover['telemetry'])
+
+    # export telemetry data as csv
+    telemetry_table.to_csv("telemetry.xlsx", index=False)
+    
 
     # Apply layout and show
     fig.suptitle("Rover Experiment1 Values Graph", fontsize=16,fontweight="bold")
