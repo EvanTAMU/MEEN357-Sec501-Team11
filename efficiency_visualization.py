@@ -36,3 +36,4 @@ def effcy_torque(effcy_tau, effcy, value_range):
 # If module is imported, doesn't run the function for no reason
 if __name__ == "__main__":
     effcy_torque(effcy_tau, effcy, value_range)
+    
