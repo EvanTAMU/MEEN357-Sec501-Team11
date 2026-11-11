@@ -5,7 +5,7 @@ from subfunctions_EDL import *
 from define_planet import *
 from define_mission_events import *
 
-# this slice is getting prepped
+# this pizza slice is almost cooked
 
 
 # create a 3x1 plot of the parachute study 
