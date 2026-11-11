@@ -111,6 +111,8 @@ def F_drag_descent(edl_system,planet,altitude,velocity):
     
     # if the parachute is in the deployed state, need to account for its area
     # in the drag calculation
+
+    ### USE THIS FOR TASK 5###
     if edl_system['parachute']['deployed'] and not edl_system['parachute']['ejected']:
         ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*edl_system['parachute']['Cd']
     else:
