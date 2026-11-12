@@ -89,9 +89,8 @@ for diameter in parachute_diameters:
     velocity_data.append(final_velocity)
 
     # 3. Determine rover landing success (1 = success; 0 = failure)
-    # Success criteria: Rover reached the ground safely with a controlled descent speed (< 5 m/s)
     # Check if the rover is on the ground and moving slowly enough to survive
-    if edl_system['rover']['on_ground'] == True and final_velocity < 5.0:
+    if edl_system['rover']['on_ground'] == True and final_velocity < 1.0:
         success_data.append(1)
     else:
         success_data.append(0)
@@ -102,26 +101,26 @@ velocity_data = np.array(velocity_data)
 success_data = np.array(success_data)
 
 # Create a figure window
-plt.figure(figsize=(8, 10))
+plt.figure(figsize=(8, 8))
 
 # p1 
 plt.subplot(3, 1, 1)  
 plt.plot(parachute_diameters, time_data, color='blue', marker='o')
-plt.title('Mars EDL Parachute Study (14m to 19m)')
-plt.ylabel('Sim. Time [s]')
+plt.title('Parachute Size study (14m to 19m)')
+plt.ylabel('simulation time s')
 plt.grid(True)
 
 # p2
 plt.subplot(3, 1, 2)  
 plt.plot(parachute_diameters, velocity_data, color='red', marker='o')
-plt.ylabel('Final Speed [m/s]')
+plt.ylabel('Final velocity m/s')
 plt.grid(True)
 
 # p3
 plt.subplot(3, 1, 3)  
 plt.plot(parachute_diameters, success_data, color='green', marker='o')
-plt.ylabel('Success (1/0)')
-plt.xlabel('Parachute Diameter [m]')
+plt.ylabel('Success')
+plt.xlabel('Parachute diameter m')
 plt.yticks([0, 1])
 plt.grid(True)
 

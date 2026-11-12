@@ -10,7 +10,21 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator as pchip
 from scipy.integrate import solve_ivp
+import scipy.interpolate as interp
 
+# TABLES FROM PDF FOR MACH AND MEF
+mach = np.array([
+    0.25, 0.5, 0.65, 0.7, 0.8, 0.9, 0.95, 1.0, 1.1, 1.2,
+    1.3, 1.4, 1.5, 1.6, 1.8, 1.9, 2.0, 2.2, 2.5, 2.6
+])
+
+mef = np.array([
+    1.0, 1.0, 1.0, 0.97, 0.91, 0.72, 0.66, 0.75, 0.90, 0.96,
+    0.990, 0.999, 0.992, 0.98, 0.91, 0.85, 0.82, 0.75, 0.64, 0.62
+])
+
+# Interpolation for MEF value at given mach 
+mef_interp = interp.interp1d(mach, mef, kind='linear', fill_value="extrapolate")
 
 def get_mass_rover(edl_system):
 
@@ -85,7 +99,7 @@ def F_buoyancy_descent(edl_system,planet,altitude):
     
     return F
 
-def F_drag_descent(edl_system,planet,altitude,velocity):
+def F_drag_descent(edl_system,planet,altitude,velocity, mef_sim = True):
     
     # Compute the net drag force. 
     
@@ -112,12 +126,25 @@ def F_drag_descent(edl_system,planet,altitude,velocity):
     # if the parachute is in the deployed state, need to account for its area
     # in the drag calculation
 
-    ### USE THIS FOR TASK 5###
+### TASK 5 and 6 ###
+
+    cd = edl_system['parachute']['Cd']
+
     if edl_system['parachute']['deployed'] and not edl_system['parachute']['ejected']:
-        ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*edl_system['parachute']['Cd']
-    else:
+        
+        # redefines cd as modified cd value. if med_sim is false then this gets skipped and the normal cd value is used
+        
+        if mef_sim: 
+
+            mach_sim = v2M_Mars(velocity, altitude)  # grabs Mach value for current velocity 
+            mef_sim = mef_interp(mach_sim) # finds the interpolated MEF value from the mach value
+            cd = mef_sim*edl_system['parachute']['Cd'] # calcs for modified drag coefficient
+        
+        # calculates the coeffificient of drag for the area
+        ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*cd
+
+    else: 
         ACd_parachute = 0.0
-    
     
     # This computes the ultimate drag force
     F=rhov2*(ACd_body+ACd_parachute)
