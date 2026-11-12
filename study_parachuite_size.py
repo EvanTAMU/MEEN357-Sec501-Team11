@@ -56,11 +56,12 @@ from define_mission_events import *
 # Define the test range of the parachute diameter (14 to 19 meters at 0.5 meter intervals)
 parachute_diameters = np.arange(14, 19.5, 0.5)
 
-# Initialize data storage lists
+#data storage lists
 time_data = []
 velocity_data = []
 success_data = []
 
+# run some sort of loop that appends time and speed data into a fresh array
 for diameter in parachute_diameters:
     # Load dicts that define the EDL system, planet, and mission events
     edl_system = define_edl_system_1()
@@ -80,16 +81,16 @@ for diameter in parachute_diameters:
     # Run the simulation (passing False as last argument turns off message echo)
     [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, False)
 
-    # 1. Capture simulated time at termination
+    # Capture simulated time at termination
     t_termination = t[-1]
     time_data.append(t_termination)
 
-    # 2. Capture rover speed (relative to ground) at termination
+    # Capture rover speed (relative to ground) at termination
     final_velocity = abs(edl_system['velocity'])
     velocity_data.append(final_velocity)
 
-    # 3. Determine rover landing success (1 = success; 0 = failure)
-    # Check if the rover is on the ground and moving slowly enough to survive
+    # Determine rover landing success (1 = success; 0 = failure)
+    # Check if the rover is on the ground and moving slowly enough to survive v <1 m/s
     if edl_system['rover']['on_ground'] == True and final_velocity < 1.0:
         success_data.append(1)
     else:
