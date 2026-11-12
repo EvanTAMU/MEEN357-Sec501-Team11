@@ -106,20 +106,20 @@ plt.figure(figsize=(8, 8))
 
 # p1 
 plt.subplot(3, 1, 1)  
-plt.plot(parachute_diameters, time_data, color='blue', marker='o')
+plt.plot(parachute_diameters, time_data, color='red', marker='o')
 plt.title('Parachute Size study (14m to 19m)')
 plt.ylabel('simulation time s')
 plt.grid(True)
 
 # p2
 plt.subplot(3, 1, 2)  
-plt.plot(parachute_diameters, velocity_data, color='red', marker='o')
+plt.plot(parachute_diameters, velocity_data, color='black', marker='o')
 plt.ylabel('Final velocity m/s')
 plt.grid(True)
 
 # p3
 plt.subplot(3, 1, 3)  
-plt.plot(parachute_diameters, success_data, color='green', marker='o')
+plt.plot(parachute_diameters, success_data, color='purple', marker='o')
 plt.ylabel('Success')
 plt.xlabel('Parachute diameter m')
 plt.yticks([0, 1])

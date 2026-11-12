@@ -99,7 +99,7 @@ def F_buoyancy_descent(edl_system,planet,altitude):
     
     return F
 
-def F_drag_descent(edl_system,planet,altitude,velocity, mef_sim = True):
+def F_drag_descent(edl_system,planet,altitude,velocity, mef_sim = False):
     
     # Compute the net drag force. 
     
