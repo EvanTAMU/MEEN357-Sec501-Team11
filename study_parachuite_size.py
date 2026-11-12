@@ -5,6 +5,7 @@ from subfunctions_EDL import *
 from define_planet import *
 from define_mission_events import *
 
+
 # this pizza slice is almost cooked
 
 
@@ -33,7 +34,7 @@ from define_mission_events import *
 
 # PSUEDO CODE 
 # define the test range of the parachute diameter
-p_diameter = np.arange(14, 19, 0.5) # outputs an array
+
 
 # use the redefined_eld_system in the subfunctions_EDL
     # redefined_eld_system accounts for the initial conditions
@@ -52,55 +53,80 @@ p_diameter = np.arange(14, 19, 0.5) # outputs an array
         # create another array of time and speed data that corresponds to the diameter data. 
 
 # run some sort of loop that appends time and speed data into a fresh dict
+# Define the test range of the parachute diameter (14 to 19 meters at 0.5 meter intervals)
 parachute_diameters = np.arange(14, 19.5, 0.5)
+
+# Initialize data storage lists
 time_data = []
 velocity_data = []
+success_data = []
 
-for diameter in parachute_diameters: # runs the sim for each parachute diameter 
-    # run the main_edl_simulation with the changed parachute diameter. 
-    # *************************************
-    # load dicts that define the EDL system (includes rover), planet,
-    # mission events and so forth.
+for diameter in parachute_diameters:
+    # Load dicts that define the EDL system, planet, and mission events
     edl_system = define_edl_system_1()
     mars = define_planet()
     mission_events = define_mission_events()
 
+    # Override with desired initial conditions
+    edl_system['altitude'] = 11000               # [m] initial altitude
+    edl_system['velocity'] = -590                # [m/s] initial velocity
+    edl_system['parachute']['deployed'] = True   # Parachute is open
+    edl_system['parachute']['ejected'] = False   # Still attached
+    edl_system['rover']['on_ground'] = False     # Rover has not yet landed
+    edl_system['parachute']['diameter'] = diameter # Update diameter for this run
 
-    # Overrides what might be in the loaded data to establish our desired
-    # initial conditions
-    edl_system['altitude'] = 11000    # [m] initial altitude
-    edl_system['velocity'] = -590     # [m/s] initial velocity
-    edl_system['parachute']['deployed'] = True   # our parachute is open
-    edl_system['parachute']['ejected'] = False   # and still attached
-    edl_system['rover']['on_ground'] = False # the rover has not yet landed
-    edl_system['parachute']['diameter'] = diameter
+    tmax = 2000  # [s] maximum simulated time
 
-    tmax = 2000   # [s] maximum simulated time
+    # Run the simulation (passing False as last argument turns off message echo)
+    [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, False)
 
-    # the simulation. changing last argument to false turns off message echo
-    [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, True)
+    # 1. Capture simulated time at termination
+    t_termination = t[-1]
+    time_data.append(t_termination)
 
-    # THIS CORRECTLY RUNS
+    # 2. Capture rover speed (relative to ground) at termination
+    final_velocity = abs(edl_system['velocity'])
+    velocity_data.append(final_velocity)
 
-    # now appending data into lists for my charts
-    time_data = np.append[] #appends termination time 
-    speed_data = np.append[] #appends speed at termination time 
+    # 3. Determine rover landing success (1 = success; 0 = failure)
+    # Success criteria: Rover reached the ground safely with a controlled descent speed (< 5 m/s)
+    # Check if the rover is on the ground and moving slowly enough to survive
+    if edl_system['rover']['on_ground'] == True and final_velocity < 5.0:
+        success_data.append(1)
+    else:
+        success_data.append(0)
 
-# make the plots
+# Convert lists to NumPy arrays for plotting
+time_data = np.array(time_data)
+velocity_data = np.array(velocity_data)
+success_data = np.array(success_data)
 
-plot1 = plt.figure(0)
-plt.title = ('time at termination of simulation vs. parachute diameter')
+# Create a figure window
+plt.figure(figsize=(8, 10))
+
+# p1 
+plt.subplot(3, 1, 1)  
+plt.plot(parachute_diameters, time_data, color='blue', marker='o')
+plt.title('Mars EDL Parachute Study (14m to 19m)')
+plt.ylabel('Sim. Time [s]')
+plt.grid(True)
+
+# p2
+plt.subplot(3, 1, 2)  
+plt.plot(parachute_diameters, velocity_data, color='red', marker='o')
+plt.ylabel('Final Speed [m/s]')
+plt.grid(True)
+
+# p3
+plt.subplot(3, 1, 3)  
+plt.plot(parachute_diameters, success_data, color='green', marker='o')
+plt.ylabel('Success (1/0)')
+plt.xlabel('Parachute Diameter [m]')
+plt.yticks([0, 1])
+plt.grid(True)
 
 
-plot2 = plt.figure(1)
-plt.title = ('speed vs time at termination vs. parachute diameter')
-
-plot3 = plt.figure(2)
-plt.title = ('Rover landing success (1=success; 0=failure) vs. parachute diameter')
-
-
-    
-
-
+plt.tight_layout()
+plt.show()
 
 
