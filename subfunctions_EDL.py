@@ -24,7 +24,7 @@ mef = np.array([
 ])
 
 # Interpolation for MEF value at given mach * use pchip 
-mef_interp = pchip(mach, mef, extrapolate = False)
+mef_interp = interp.interp1d(mach, mef, kind='linear', bounds_error=False, fill_value=(1.0, 0.62))
 
 def get_mass_rover(edl_system):
 
