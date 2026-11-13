@@ -56,13 +56,15 @@ from define_mission_events import *
 # Define the test range of the parachute diameter (14 to 19 meters at 0.5 meter intervals)
 parachute_diameters = np.arange(14, 19.5, 0.5)
 
-#data storage lists
-time_data = []
-velocity_data = []
-success_data = []
+#data storage lists (now arrays, cleaner and dont need to convert!)
+time_data = np.zeros(len(parachute_diameters))
+speed_data = np.zeros(len(parachute_diameters))
+success_data = np.zeros(len(parachute_diameters))
+
+tmax = 2000  # [s] maximum simulated time
 
 # run some sort of loop that appends time and speed data into a fresh array
-for diameter in parachute_diameters:
+for i, diameter in enumerate(parachute_diameters):
     # Load dicts that define the EDL system, planet, and mission events
     edl_system = define_edl_system_1()
     mars = define_planet()
@@ -71,60 +73,58 @@ for diameter in parachute_diameters:
     # Override with desired initial conditions
     edl_system['altitude'] = 11000               # [m] initial altitude
     edl_system['velocity'] = -590                # [m/s] initial velocity
+    edl_system['rocket']['on'] = False           # Rockets Off
     edl_system['parachute']['deployed'] = True   # Parachute is open
     edl_system['parachute']['ejected'] = False   # Still attached
-    edl_system['rover']['on_ground'] = False     # Rover has not yet landed
+    edl_system['heat_shield']['ejected'] = False # Not ejected
+    edl_system['sky_crane']['on'] = False        # Disable Sky crane
+    edl_system['speed_control']['on'] = False # Disable Speed controller
+    edl_system['position_control']['on'] = False # Postion controller disabled
+
+    # Update diameter for current iteration
     edl_system['parachute']['diameter'] = diameter # Update diameter for this run
 
-    tmax = 2000  # [s] maximum simulated time
-
     # Run the simulation (passing False as last argument turns off message echo)
-    [t, Y, edl_system] = simulate_edl(edl_system, mars, mission_events, tmax, False)
+    t, Y, edl_system = simulate_edl(edl_system, mars, mission_events, tmax, False)
 
     # Capture simulated time at termination
-    t_termination = t[-1]
-    time_data.append(t_termination)
+    time_data[i] = t[-1]
 
     # Capture rover speed (relative to ground) at termination
-    final_velocity = abs(edl_system['velocity'])
-    velocity_data.append(final_velocity)
+    final_speed = abs(edl_system['velocity'])
+    speed_data[i] = final_speed
 
     # Determine rover landing success (1 = success; 0 = failure)
     # Check if the rover is on the ground and moving slowly enough to survive v <1 m/s
-    if edl_system['rover']['on_ground'] == True and final_velocity < 1.0:
-        success_data.append(1)
+    if edl_system['rover']['on_ground'] and final_speed < 1.0:
+        success_data[i] = 1
     else:
-        success_data.append(0)
-
-# Convert lists to NumPy arrays for plotting
-time_data = np.array(time_data)
-velocity_data = np.array(velocity_data)
-success_data = np.array(success_data)
+        success_data[i] = 0
 
 # Create a figure window
-plt.figure(figsize=(8, 8))
 
-# p1 
-plt.subplot(3, 1, 1)  
-plt.plot(parachute_diameters, time_data, color='blue', marker='o')
-plt.title('Parachute Size study (14m to 19m)')
-plt.ylabel('simulation time s')
-plt.grid(True)
+fig, axs = plt.subplots(3,1,figsize=(8,9))
 
-# p2
-plt.subplot(3, 1, 2)  
-plt.plot(parachute_diameters, velocity_data, color='red', marker='o')
-plt.ylabel('Final velocity m/s')
-plt.grid(True)
+# p1 Simulated time vs. parachute diameter
+axs[0].plot(parachute_diameters, time_data, color='blue', marker='o')
+axs[0].set_title('Impact of Parachute Diameter on EDL Performance (14 m to 19 m)')
+axs[0].set_xlabel('Parachute Diameter [m]')
+axs[0].set_ylabel('Simulated Time [s]')
+axs[0].grid(True)
 
-# p3
-plt.subplot(3, 1, 3)  
-plt.plot(parachute_diameters, success_data, color='green', marker='o')
-plt.ylabel('Success')
-plt.xlabel('Parachute diameter m')
-plt.yticks([0, 1])
-plt.grid(True)
+# p2 Rover speed at termination vs. parachute diameter
+axs[1].plot(parachute_diameters, speed_data, color='red', marker='o', linewidth=1.5)
+axs[1].set_xlabel('Parachute Diameter [m]')
+axs[1].set_ylabel('Termination Speed [m/s]')
+axs[1].grid(True)
 
+# p3 Rover landing success vs. parachute diameter
+axs[2].plot(parachute_diameters, success_data, color='green', marker='o', linewidth=1.5)
+axs[2].set_xlabel('Parachute Diameter [m]')
+axs[2].set_ylabel('Landing Success [1/0]')
+axs[2].set_yticks([0, 1])
+axs[2].set_ylim([-0.15, 1.15])
+axs[2].grid(True)
 
 plt.tight_layout()
 plt.show()

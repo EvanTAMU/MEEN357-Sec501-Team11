@@ -99,55 +99,39 @@ def F_buoyancy_descent(edl_system,planet,altitude):
     
     return F
 
-def F_drag_descent(edl_system,planet,altitude,velocity, mef_sim = True):
-    
+def F_drag_descent(edl_system, planet, altitude, velocity):
     # Compute the net drag force. 
-    
     
     # compute the density of planetary atmosphere at current altitude
     density, _, _ = get_local_atm_properties(planet, altitude)
     
-    # This is the (1/2)*density*velocity^2 part of the drag model. The missing
-    # bit is area*Cd, which we'll figure out below.
-    rhov2=0.5*density*velocity**2
-    
+    # This is the (1/2)*density*velocity^2 part of the drag model.
+    rhov2 = 0.5 * density * velocity**2
     
     # *************************************
     # Determine which part(s) of the EDL system are contributing to drag
-    
-    # If the heat shield has not been ejected, use that as our drag
-    # contributor. Otherwise, use the sky crane.
     if not edl_system['heat_shield']['ejected']:
-        ACd_body = np.pi*(edl_system['heat_shield']['diameter']/2.0)**2*edl_system['heat_shield']['Cd']
+        ACd_body = np.pi * (edl_system['heat_shield']['diameter'] / 2.0)**2 * edl_system['heat_shield']['Cd']
     else:
-        ACd_body = edl_system['sky_crane']['area']*edl_system['sky_crane']['Cd']
-
+        ACd_body = edl_system['sky_crane']['area'] * edl_system['sky_crane']['Cd']
     
-    # if the parachute is in the deployed state, need to account for its area
-    # in the drag calculation
-
-### TASK 5 and 6 ###
-
+    # If the parachute is in the deployed state, account for its area in the drag calculation
+    ### TASK 5 and 6 ###
     cd = edl_system['parachute']['Cd']
 
     if edl_system['parachute']['deployed'] and not edl_system['parachute']['ejected']:
+        # Check if the modified MEF drag model is enabled (defaults to False for Tasks 1-5) FIXED!
+        if edl_system['parachute'].get('use_MEF', False):
+            mach_num = v2M_Mars(abs(velocity), altitude) # abs added
+            mef_val = mef_interp(mach_num)
+            cd = mef_val * edl_system['parachute']['Cd']
         
-        # redefines cd as modified cd value. if med_sim is false then this gets skipped and the normal cd value is used
-        
-        if mef_sim: 
-
-            mach_sim = v2M_Mars(velocity, altitude)  # grabs Mach value for current velocity 
-            mef_sim = mef_interp(mach_sim) # finds the interpolated MEF value from the mach value
-            cd = mef_sim*edl_system['parachute']['Cd'] # calcs for modified drag coefficient
-        
-        # calculates the coeffificient of drag for the area
-        ACd_parachute = np.pi*(edl_system['parachute']['diameter']/2.0)**2*cd
-
+        ACd_parachute = np.pi * (edl_system['parachute']['diameter'] / 2.0)**2 * cd
     else: 
         ACd_parachute = 0.0
     
     # This computes the ultimate drag force
-    F=rhov2*(ACd_body+ACd_parachute)
+    F = rhov2 * (ACd_body + ACd_parachute)
     
     return F
 
